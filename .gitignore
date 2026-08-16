@@ -1,0 +1,12 @@
+.build/
+*.iso
+*.iso.partial
+vendor/*.deb
+!vendor/README.md
+ansible/inventory/hosts.yml
+*.retry
+__pycache__/
+.DS_Store
+iso/live-build/chroot/
+iso/live-build/binary/
+iso/live-build/cache/

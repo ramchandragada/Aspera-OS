@@ -1,0 +1,30 @@
+---
+- name: Branding directories
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    mode: "0755"
+  loop:
+    - /usr/share/backgrounds/aspera
+    - /usr/share/pixmaps
+    - /usr/share/icons
+
+- name: Install logo and wallpaper
+  ansible.builtin.copy:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    mode: "0644"
+  loop:
+    - { src: "{{ playbook_dir }}/../../branding/logos/aspera.png", dest: /usr/share/pixmaps/aspera.png }
+    - { src: "{{ playbook_dir }}/../../branding/logos/aspera-avatar.png", dest: /usr/share/icons/aspera-avatar.png }
+    - { src: "{{ playbook_dir }}/../../branding/wallpapers/aspera-default.png", dest: /usr/share/backgrounds/aspera/aspera-default.png }
+  failed_when: false
+
+- name: LightDM slick-greeter branding
+  ansible.builtin.copy:
+    dest: /etc/lightdm/slick-greeter.conf
+    content: |
+      [Greeter]
+      background=/usr/share/backgrounds/aspera/aspera-default.png
+      draw-user-backgrounds=false
+  failed_when: false

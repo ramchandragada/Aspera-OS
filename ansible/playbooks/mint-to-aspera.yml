@@ -1,0 +1,11 @@
+---
+# Convert an existing Linux Mint XFCE PC to Aspera OS policy (no reimage).
+- name: Mint to Aspera OS
+  hosts: aspera
+  become: true
+  roles:
+    - common
+    - apps
+    - branding
+    - desktop
+    - harden

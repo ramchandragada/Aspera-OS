@@ -1,0 +1,17 @@
+---
+aspera_apt_apps:
+  - libreoffice
+  - simplescreenrecorder
+  - flameshot
+  - vlc
+aspera_purge_apps:
+  - hypnotix
+  - thunderbird
+  - hexchat
+  - transmission-gtk
+  - drawing
+  - warpinator
+  - gnome-mines
+  - gnome-sudoku
+  - rhythmbox
+  - firefox

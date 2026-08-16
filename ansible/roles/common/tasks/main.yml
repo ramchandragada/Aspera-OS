@@ -1,0 +1,26 @@
+---
+- name: Timezone and basics
+  ansible.builtin.copy:
+    dest: /etc/apt/apt.conf.d/99aspera-force-ipv4
+    content: |
+      Acquire::ForceIPv4 "true";
+- name: Install zram-tools
+  ansible.builtin.apt:
+    name: zram-tools
+    state: present
+    update_cache: true
+- name: Configure zram
+  ansible.builtin.lineinfile:
+    path: /etc/default/zramswap
+    regexp: "{{ item.re }}"
+    line: "{{ item.line }}"
+    create: true
+  loop:
+    - { re: '^#?PERCENT=', line: 'PERCENT={{ aspera_zram_percent | default(50) }}' }
+    - { re: '^#?ALGO=', line: 'ALGO=zstd' }
+- name: Enable zramswap
+  ansible.builtin.service:
+    name: zramswap
+    enabled: true
+    state: started
+  failed_when: false

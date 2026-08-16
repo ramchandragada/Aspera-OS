@@ -1,0 +1,9 @@
+all:
+  children:
+    aspera:
+      hosts:
+        # office-pc-1:
+        #   ansible_host: 192.168.1.50
+        #   ansible_user: shree
+      vars:
+        aspera_vendor_dir: "{{ playbook_dir }}/../../vendor"

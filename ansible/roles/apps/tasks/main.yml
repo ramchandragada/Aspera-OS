@@ -1,0 +1,32 @@
+---
+- name: Purge Mint extras
+  ansible.builtin.apt:
+    name: "{{ aspera_purge_apps }}"
+    state: absent
+    purge: true
+  failed_when: false
+
+- name: Install apt apps
+  ansible.builtin.apt:
+    name: "{{ aspera_apt_apps }}"
+    state: present
+    update_cache: true
+
+- name: Install vendor debs
+  ansible.builtin.shell: |
+    set -e
+    for deb in {{ aspera_vendor_dir }}/*.deb; do
+      [ -f "$deb" ] || continue
+      apt-get -y install "$deb" || dpkg -i "$deb"
+      apt-get -y -f install
+    done
+  args:
+    executable: /bin/bash
+  when: aspera_vendor_dir is defined
+
+- name: Disable AnyDesk autostart
+  ansible.builtin.service:
+    name: anydesk
+    enabled: false
+    state: stopped
+  failed_when: false

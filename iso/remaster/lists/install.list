@@ -1,0 +1,13 @@
+libreoffice
+libreoffice-writer
+libreoffice-calc
+libreoffice-impress
+libreoffice-draw
+libreoffice-gtk3
+simplescreenrecorder
+flameshot
+vlc
+zram-tools
+ca-certificates
+curl
+wget
