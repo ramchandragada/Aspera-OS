@@ -44,6 +44,15 @@ fi
 ls -lh "$MINT_ISO"
 
 echo "Cleaning work dir..."
+# Unmount any leftover chroot binds from a previous failed run
+if [ -d "$WORK/edit" ]; then
+	umount "$WORK/edit/dev/pts" 2>/dev/null || true
+	umount "$WORK/edit/dev" 2>/dev/null || true
+	umount "$WORK/edit/run" 2>/dev/null || true
+	umount "$WORK/edit/proc" 2>/dev/null || true
+	umount "$WORK/edit/sys" 2>/dev/null || true
+	umount "$WORK/mount" 2>/dev/null || true
+fi
 rm -rf "$WORK"
 mkdir -p "$WORK"/{iso,squash,edit,mount}
 
@@ -54,6 +63,7 @@ unsquashfs -d "$WORK/edit" "$WORK/mount/casper/filesystem.squashfs"
 umount "$WORK/mount"
 
 echo "Applying Aspera customization inside chroot..."
+mkdir -p "$WORK/edit/tmp"
 cp -a "$ROOT/scripts/chroot-customize.sh" "$WORK/edit/tmp/chroot-customize.sh"
 mkdir -p "$WORK/edit/tmp/aspera-vendor" "$WORK/edit/tmp/aspera-branding" "$WORK/edit/tmp/aspera-lists"
 cp -a "$VENDOR"/*.deb "$WORK/edit/tmp/aspera-vendor/"
@@ -62,18 +72,23 @@ cp -a "$ROOT/branding/wallpapers/." "$WORK/edit/tmp/aspera-branding/"
 cp -a "$ROOT/iso/remaster/lists/." "$WORK/edit/tmp/aspera-lists/"
 
 mount --bind /dev "$WORK/edit/dev"
-mount --bind /run "$WORK/edit/run"
 mount -t proc proc "$WORK/edit/proc"
 mount -t sysfs sysfs "$WORK/edit/sys"
 mount -t devpts devpts "$WORK/edit/dev/pts"
-cp /etc/resolv.conf "$WORK/edit/etc/resolv.conf"
+# Do not bind-mount /run: on systemd hosts /etc/resolv.conf is often the same
+# file via /run/systemd/resolve, and cp then aborts the whole build.
+rm -f "$WORK/edit/etc/resolv.conf"
+cat > "$WORK/edit/etc/resolv.conf" <<'EOF'
+nameserver 1.1.1.1
+nameserver 8.8.8.8
+nameserver 9.9.9.9
+EOF
 
 chroot "$WORK/edit" /bin/bash /tmp/chroot-customize.sh
 status=$?
 
 umount "$WORK/edit/dev/pts" 2>/dev/null || true
 umount "$WORK/edit/dev" 2>/dev/null || true
-umount "$WORK/edit/run" 2>/dev/null || true
 umount "$WORK/edit/proc" 2>/dev/null || true
 umount "$WORK/edit/sys" 2>/dev/null || true
 
