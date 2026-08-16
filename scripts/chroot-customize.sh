@@ -113,17 +113,37 @@ cat > /etc/skel/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-desktop.xml <<'EO
 </channel>
 EOF
 
-# slick-greeter background if present (Mint)
-if [ -d /etc/lightdm ]; then
-	mkdir -p /etc/lightdm
-	cat > /etc/lightdm/slick-greeter.conf <<'EOF'
+# slick-greeter + always boot to GUI (live and installed)
+mkdir -p /etc/lightdm/lightdm.conf.d
+cat > /etc/lightdm/lightdm.conf.d/50-aspera-autologin.conf <<'EOF'
+[Seat:*]
+autologin-user=mint
+autologin-user-timeout=0
+user-session=xfce
+greeter-session=slick-greeter
+EOF
+cat > /etc/lightdm/slick-greeter.conf <<'EOF'
 [Greeter]
 background=/usr/share/backgrounds/aspera/aspera-default.png
 theme-name=Mint-Y-Dark-Blue
 icon-theme-name=Mint-Y-Dark-Blue
 draw-user-backgrounds=false
 EOF
-fi
+# Live session identity (casper uses this on USB boot)
+cat > /etc/casper.conf <<'EOF'
+export USERNAME="mint"
+export USERFULLNAME="Aspera Live"
+export HOST="aspera-pc"
+export BUILD_SYSTEM="Ubuntu"
+EOF
+# Graphical boot is the only face of the OS
+systemctl set-default graphical.target 2>/dev/null || true
+systemctl enable lightdm.service 2>/dev/null || true
+# No first-boot quizzes / welcome noise
+rm -f /etc/xdg/autostart/mintwelcome.desktop 2>/dev/null || true
+rm -f /etc/xdg/autostart/mintupdate.desktop 2>/dev/null || true
+mkdir -p /etc/skel/.config/autostart
+echo "Hidden=true" >> /etc/xdg/autostart/mintwelcome.desktop 2>/dev/null || true
 
 # Hide Software Manager from casual use (keep package for mintupdate deps if needed)
 for f in \
