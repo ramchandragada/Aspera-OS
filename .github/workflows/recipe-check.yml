@@ -1,0 +1,24 @@
+name: recipe-check
+on:
+  push:
+  pull_request:
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Required paths exist
+        run: |
+          test -f scripts/fetch-vendor.sh
+          test -f scripts/build-iso.sh
+          test -f scripts/chroot-customize.sh
+          test -f iso/remaster/lists/purge.list
+          test -f iso/remaster/lists/install.list
+          test -f branding/logos/aspera.png
+          test -f ansible/playbooks/mint-to-aspera.yml
+          test -x scripts/fetch-vendor.sh || chmod +x scripts/*.sh
+      - name: Shell syntax
+        run: |
+          bash -n scripts/fetch-vendor.sh
+          bash -n scripts/build-iso.sh
+          bash -n scripts/chroot-customize.sh
