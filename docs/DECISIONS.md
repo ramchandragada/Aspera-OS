@@ -51,3 +51,9 @@
 **Decision:** `scripts/fetch-vendor.sh` downloads pinned Hub, TuxGenie, Chrome, and AnyDesk `.deb`s into `vendor/` at ISO build time.
 
 **Why:** Every USB and every Ansible run must match. No “whatever was latest on one PC.”
+
+## ADR-009 — Boots straight to the GUI
+
+**Decision:** Live USB and installed PCs start in the graphical desktop (LightDM + XFCE). Live session auto-logs in as `mint`. No language/keyboard quiz on try-session. Boot menu timeout is a few seconds.
+
+**Why:** Staff are not Linux installers. “Turn on the PC” must mean the desktop.
