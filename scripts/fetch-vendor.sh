@@ -33,6 +33,11 @@ download \
 	"https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb" \
 	"$VENDOR/google-chrome-stable_current_amd64.deb"
 
+# PDF Sign Verifier
+download \
+	"https://github.com/ramchandragada/SignVerifierForLinux/releases/download/v1.0.18/pdf-sign-verifier_1.0.18_amd64.deb" \
+	"$VENDOR/pdf-sign-verifier_1.0.18_amd64.deb"
+
 echo
 echo "Vendor packages ready:"
 ls -lh "$VENDOR"/*.deb

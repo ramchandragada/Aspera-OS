@@ -10,9 +10,9 @@
 
 **Why:** Staff already understand Mint/XFCE. XFCE is the lightest serious desktop Mint ships. Speed and stability beat inventing a new stack.
 
-## ADR-002 — Eight apps only
+## ADR-002 — Staff apps only
 
-**Decision:** Staff image contains only: Chrome, Aspera Hub, TuxGenie, LibreOffice (complete), SimpleScreenRecorder, Flameshot, AnyDesk, VLC. Strip Mint extras (Hypnotix, games, Hexchat, Thunderbird, Transmission, Drawing, etc.).
+**Decision:** Staff image: Chrome, Aspera Hub, TuxGenie, LibreOffice **Writer/Calc/Impress/Draw** (no Base, no Math), SimpleScreenRecorder, Flameshot, AnyDesk, VLC, **PDF Sign Verifier**. Strip Mint extras (Hypnotix, games, Thunderbird, Transmission, Web Apps, Notes, USB Image Writer, Warpinator, etc.).
 
 **Why:** The company only uses these tools. Extra apps create tickets and waste RAM/disk on 128 GB SSDs.
 

@@ -1,6 +1,9 @@
 ---
 aspera_apt_apps:
-  - libreoffice
+  - libreoffice-writer
+  - libreoffice-calc
+  - libreoffice-impress
+  - libreoffice-draw
   - simplescreenrecorder
   - flameshot
   - vlc
@@ -15,3 +18,10 @@ aspera_purge_apps:
   - gnome-sudoku
   - rhythmbox
   - firefox
+  - libreoffice-base
+  - libreoffice-math
+  - mintstick
+  - xfce4-notes
+  - xfce4-screenshooter
+  - webapp-manager
+  - celluloid

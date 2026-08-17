@@ -30,7 +30,8 @@ need rsync
 if ! ls "$VENDOR"/asperadock*.deb >/dev/null 2>&1 \
 	|| ! ls "$VENDOR"/tuxgenie*.deb >/dev/null 2>&1 \
 	|| ! ls "$VENDOR"/anydesk*.deb >/dev/null 2>&1 \
-	|| ! ls "$VENDOR"/google-chrome*.deb >/dev/null 2>&1; then
+	|| ! ls "$VENDOR"/google-chrome*.deb >/dev/null 2>&1 \
+	|| ! ls "$VENDOR"/pdf-sign-verifier*.deb >/dev/null 2>&1; then
 	echo "Vendor .deb packages missing — running fetch-vendor.sh"
 	"$ROOT/scripts/fetch-vendor.sh"
 fi

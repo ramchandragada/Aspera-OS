@@ -9,7 +9,8 @@ Company Linux for staff PCs. **Linux Mint XFCE**, thin and fast.
 | Google Chrome | General browsing |
 | Aspera Hub | WhatsApp, Arattai, Gmail, Zoho Mail |
 | TuxGenie | Linux troubleshooting |
-| LibreOffice | Full office suite |
+| LibreOffice | Writer, Calc, Impress, Draw |
+| PDF Sign Verifier | Signed PDF check |
 | SimpleScreenRecorder | Screen recording |
 | Flameshot | Screenshots |
 | AnyDesk | Remote support |

@@ -61,6 +61,18 @@ for deb in /tmp/aspera-vendor/*.deb; do
 done
 shopt -u nullglob
 
+# PDF Sign Verifier belongs in Office
+for f in /usr/share/applications/*sign* /usr/share/applications/*verifier*; do
+	[ -f "$f" ] || continue
+	if grep -qiE 'sign|verifier|pdf' "$f"; then
+		if grep -q '^Categories=' "$f"; then
+			sed -i 's/^Categories=.*/Categories=Office;Utility;/' "$f" || true
+		else
+			echo 'Categories=Office;Utility;' >> "$f"
+		fi
+	fi
+done
+
 # zram
 if [ -f /etc/default/zramswap ]; then
 	sed -i 's/^#\?PERCENT=.*/PERCENT=50/' /etc/default/zramswap || true
@@ -184,7 +196,7 @@ for f in /usr/share/applications/*.desktop; do
 	[ -f "$f" ] || continue
 	base=$(basename "$f" | tr '[:upper:]' '[:lower:]')
 	case "$base" in
-		*thunderbird*|*transmission*|*hypnotix*|*celluloid*|*rhythmbox*|*webapp*|*matrix*|*element*|*nheko*|*fractal*)
+		*thunderbird*|*transmission*|*hypnotix*|*celluloid*|*rhythmbox*|*webapp*|*matrix*|*element*|*nheko*|*fractal*|*warpinator*|*mintstick*|*usb-image*|*notes*|*libreoffice-base*|*libreoffice-math*|*screenshooter*)
 			grep -q '^NoDisplay=true' "$f" || echo 'NoDisplay=true' >> "$f" || true
 			;;
 	esac
@@ -231,7 +243,7 @@ place_launcher 5 anydesk.desktop 'anydesk*.desktop'
 
 # Desktop shortcuts for staff apps
 mkdir -p /etc/skel/Desktop
-for app in google-chrome asperadock tuxgenie libreoffice-writer flameshot simplescreenrecorder vlc anydesk; do
+for app in google-chrome asperadock tuxgenie libreoffice-writer flameshot simplescreenrecorder vlc anydesk pdf-sign sign-verifier; do
 	src=$(ls /usr/share/applications/${app}*.desktop 2>/dev/null | head -n1 || true)
 	if [ -n "${src:-}" ] && [ -f "$src" ]; then
 		cp "$src" /etc/skel/Desktop/ || true
