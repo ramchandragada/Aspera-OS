@@ -107,42 +107,10 @@ if [ -x "$WORK/edit/usr/bin/dpkg-query" ]; then
 	chroot "$WORK/edit" dpkg-query -W --showformat='${Package} ${Version}\n' > "$WORK/iso/casper/filesystem.manifest" || true
 fi
 
-"$ROOT/scripts/patch-live-boot.sh" "$WORK/iso"
-
-# Keep Mint's original volume label. Changing it makes casper miss the CD
-# (kernel panic: VFS: Unable to mount root fs on unknown-block(0,0)).
-VOLID="${MINT_VOLID:-Linux Mint}"
-if command -v xorriso >/dev/null 2>&1 && [ -f "$MINT_ISO" ]; then
-	VOLID="$(xorriso -indev "$MINT_ISO" -status 2>/dev/null | awk -F"'" '/Volume id/ {print $2; exit}' || true)"
-	VOLID="${VOLID:-Linux Mint}"
-fi
-
-echo "Building hybrid ISO..."
-rm -f "$OUT"
-xorriso -as mkisofs \
-	-r -V "$VOLID" \
-	-o "$OUT" \
-	-J -l \
-	-b isolinux/isolinux.bin \
-	-c isolinux/boot.cat \
-	-no-emul-boot -boot-load-size 4 -boot-info-table \
-	-eltorito-alt-boot \
-	-e boot/grub/efi.img \
-	-no-emul-boot \
-	-isohybrid-gpt-basdat \
-	"$WORK/iso" || {
-		echo "EFI hybrid failed — trying BIOS-oriented ISO..."
-		xorriso -as mkisofs \
-			-r -V "$VOLID" \
-			-o "$OUT" \
-			-J -l \
-			-b isolinux/isolinux.bin \
-			-c isolinux/boot.cat \
-			-no-emul-boot -boot-load-size 4 -boot-info-table \
-			-isohybrid-mbr /usr/lib/ISOLINUX/isohdpfx.bin \
-			"$WORK/iso" 2>/dev/null \
-		|| xorriso -as mkisofs -r -V "$VOLID" -o "$OUT" -J -l "$WORK/iso"
-	}
+"$ROOT/scripts/assemble-iso.sh" "$MINT_ISO" \
+	"$WORK/iso/casper/filesystem.squashfs" \
+	"$WORK/iso/casper/filesystem.size" \
+	"$OUT"
 
 if [ -n "${SUDO_UID:-}" ] && [ -n "${SUDO_GID:-}" ]; then
 	chown "${SUDO_UID}:${SUDO_GID}" "$OUT" 2>/dev/null || true
