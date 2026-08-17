@@ -52,8 +52,8 @@
 
 **Why:** Every USB and every Ansible run must match. No “whatever was latest on one PC.”
 
-## ADR-009 — Boots straight to the GUI
+## ADR-009 — Live GUI, successful install, then your login
 
-**Decision:** Live USB and installed PCs start in the graphical desktop (LightDM + XFCE). Live session auto-logs in as `mint`. Boot menu timeout is a few seconds. Live boot args are **appended**; kernel/initrd paths are never rewritten. ISO volume label stays Linux Mint’s so casper can find the disc.
+**Decision:** Remaster only. Keep Mint’s original ISO boot (`xorriso -boot_image any replay`) so casper finds the disc. Live desktop is Mint casper + LightDM/XFCE. Do **not** write `autologin-user=mint` into the squashfs (that is copied onto the PC and blocks the real account). Ubiquity stays installed. After install, LightDM uses the user and password created in the installer. `apt autoremove` is forbidden in the remaster.
 
-**Why:** Staff are not Linux installers. A bad rewrite of `initrd=` caused `VFS: Unable to mount root fs on unknown-block(0,0)` in VirtualBox. That is a crash, not a wait.
+**Why:** Staff need: USB → desktop → Install → reboot → their name and password. Baking live autologin into the disk image, rewriting boot with mkisofs, or autoremoving packages breaks those basics.

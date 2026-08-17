@@ -1,0 +1,12 @@
+# Never purge these (installer + boot + desktop)
+ubiquity
+ubiquity-frontend-gtk
+casper
+lightdm
+slick-greeter
+xfce4
+xfce4-session
+grub-pc
+grub-efi-amd64
+os-prober
+user-setup

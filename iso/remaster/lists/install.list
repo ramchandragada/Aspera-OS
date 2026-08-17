@@ -11,3 +11,7 @@ zram-tools
 ca-certificates
 curl
 wget
+ubiquity
+ubiquity-frontend-gtk
+lightdm
+slick-greeter

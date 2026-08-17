@@ -5,17 +5,11 @@ export DEBIAN_FRONTEND=noninteractive
 
 echo "Aspera OS: customize chroot"
 
-# Identity
-cat > /etc/os-release <<'EOF'
-PRETTY_NAME="Aspera OS 1.0"
-NAME="Aspera OS"
-VERSION_ID="1.0"
-VERSION="1.0 (Mint XFCE)"
-VERSION_CODENAME=aspera
-ID=aspera
-ID_LIKE="ubuntu debian"
-HOME_URL="https://github.com/ramchandragada/Aspera-OS"
-EOF
+# Branding name only. Keep ID=linuxmint so apt, ubiquity, and mintupdate still work.
+if [ -f /etc/os-release ]; then
+	sed -i 's/^PRETTY_NAME=.*/PRETTY_NAME="Aspera OS 1.0"/' /etc/os-release || true
+fi
+echo "Aspera OS 1.0 \\n \\l" > /etc/issue
 echo "aspera-pc" > /etc/hostname
 
 # Branding files
@@ -32,12 +26,14 @@ printf 'Acquire::ForceIPv4 "true";\n' > /etc/apt/apt.conf.d/99aspera-force-ipv4
 
 apt-get update -qq
 
-# Purge Mint extras
+NEVER_PURGE='ubiquity|casper|lightdm|slick-greeter|xfce4|grub|shim|mokutil|os-prober|user-setup|mint-meta|live-boot|live-config'
+
+# Purge Mint extras (never touch installer/boot stack)
 if [ -f /tmp/aspera-lists/purge.list ]; then
-	mapfile -t PURGE < <(grep -vE '^\s*(#|$)' /tmp/aspera-lists/purge.list || true)
+	mapfile -t PURGE < <(grep -vE '^\s*(#|$)' /tmp/aspera-lists/purge.list | grep -vE "$NEVER_PURGE" || true)
 	if [ "${#PURGE[@]}" -gt 0 ]; then
 		apt-get -y purge "${PURGE[@]}" 2>/dev/null || true
-		apt-get -y autoremove --purge 2>/dev/null || true
+		# Do not autoremove — it can pull ubiquity/casper off a remaster.
 	fi
 fi
 
@@ -87,7 +83,7 @@ Comment=Screenshot tool
 X-GNOME-Autostart-enabled=true
 EOF
 
-# XFCE wallpaper for new users
+# XFCE wallpaper for new users (copied by the installer into the first account)
 mkdir -p /etc/skel/.config/xfce4/xfconf/xfce-perchannel-xml
 cat > /etc/skel/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-desktop.xml <<'EOF'
 <?xml version="1.0" encoding="UTF-8"?>
@@ -113,15 +109,16 @@ cat > /etc/skel/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-desktop.xml <<'EO
 </channel>
 EOF
 
-# slick-greeter + always boot to GUI (live and installed)
+# GUI session for live AND installed. Do NOT autologin as mint here —
+# that file is copied onto the hard disk and then nobody can log in.
+# Live USB autologin is casper (Mint already does this).
 mkdir -p /etc/lightdm/lightdm.conf.d
-cat > /etc/lightdm/lightdm.conf.d/50-aspera-autologin.conf <<'EOF'
+cat > /etc/lightdm/lightdm.conf.d/50-aspera-session.conf <<'EOF'
 [Seat:*]
-autologin-user=mint
-autologin-user-timeout=0
 user-session=xfce
 greeter-session=slick-greeter
 EOF
+rm -f /etc/lightdm/lightdm.conf.d/50-aspera-autologin.conf
 cat > /etc/lightdm/slick-greeter.conf <<'EOF'
 [Greeter]
 background=/usr/share/backgrounds/aspera/aspera-default.png
@@ -129,30 +126,49 @@ theme-name=Mint-Y-Dark-Blue
 icon-theme-name=Mint-Y-Dark-Blue
 draw-user-backgrounds=false
 EOF
-# Live session identity (casper uses this on USB boot)
+
+# Live session identity (casper only; not the installed login)
 cat > /etc/casper.conf <<'EOF'
 export USERNAME="mint"
 export USERFULLNAME="Aspera Live"
 export HOST="aspera-pc"
 export BUILD_SYSTEM="Ubuntu"
 EOF
-# Graphical boot is the only face of the OS
+
+# After ubiquity copies the filesystem, drop live-only bits and keep GUI login
+install -d /usr/lib/ubiquity/target-config
+cat > /usr/lib/ubiquity/target-config/10aspera-installed-login <<'EOF'
+#!/bin/sh
+set -e
+# Installed PC: the person created in the installer must be able to log in.
+rm -f /target/etc/lightdm/lightdm.conf.d/50-aspera-autologin.conf
+mkdir -p /target/etc/lightdm/lightdm.conf.d
+cat > /target/etc/lightdm/lightdm.conf.d/50-aspera-session.conf <<CONF
+[Seat:*]
+user-session=xfce
+greeter-session=slick-greeter
+CONF
+chroot /target systemctl set-default graphical.target >/dev/null 2>&1 || true
+chroot /target systemctl enable lightdm.service >/dev/null 2>&1 || true
+exit 0
+EOF
+chmod 0755 /usr/lib/ubiquity/target-config/10aspera-installed-login
+
 systemctl set-default graphical.target 2>/dev/null || true
 systemctl enable lightdm.service 2>/dev/null || true
-# No first-boot quizzes / welcome noise
-rm -f /etc/xdg/autostart/mintwelcome.desktop 2>/dev/null || true
-rm -f /etc/xdg/autostart/mintupdate.desktop 2>/dev/null || true
-mkdir -p /etc/skel/.config/autostart
-echo "Hidden=true" >> /etc/xdg/autostart/mintwelcome.desktop 2>/dev/null || true
 
-# Hide Software Manager from casual use (keep package for mintupdate deps if needed)
+# Hide first-run welcome; keep mintupdate available after install
+rm -f /etc/xdg/autostart/mintwelcome.desktop 2>/dev/null || true
+mkdir -p /etc/skel/.config/autostart
+
+# Hide Software Manager from casual use
 for f in \
 	/usr/share/applications/mintinstall.desktop \
 	/usr/share/applications/ubuntu-software.desktop \
 	/usr/share/applications/gnome-software.desktop
 do
 	if [ -f "$f" ]; then
-		echo 'NoDisplay=true' >> "$f" || true
+		grep -q '^NoDisplay=true' "$f" || echo 'NoDisplay=true' >> "$f" || true
 	fi
 done
 
@@ -165,6 +181,19 @@ for app in google-chrome asperadock tuxgenie libreoffice-writer flameshot simple
 	fi
 done
 chmod +x /etc/skel/Desktop/*.desktop 2>/dev/null || true
+
+# Fail the remaster if the three basics are missing
+for pkg in lightdm ubiquity; do
+	if ! dpkg-query -W -f='${Status}' "$pkg" 2>/dev/null | grep -q 'install ok installed'; then
+		echo "ERROR: required package missing after remaster: $pkg" >&2
+		exit 1
+	fi
+done
+if ! dpkg-query -W -f='${Status}' xfce4-session 2>/dev/null | grep -q 'install ok installed' \
+	&& ! dpkg-query -W -f='${Status}' xfce4 2>/dev/null | grep -q 'install ok installed'; then
+	echo "ERROR: XFCE session missing after remaster" >&2
+	exit 1
+fi
 
 # Cleanup apt caches for smaller squashfs
 apt-get clean
