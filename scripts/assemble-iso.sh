@@ -47,6 +47,16 @@ if [ -f "${SQUASH%/*}/filesystem.manifest" ]; then
 		-chmod a+r /casper/filesystem.manifest --
 	)
 fi
+CASPER_DIR="${SQUASH%/*}"
+for bootf in vmlinuz initrd.lz initrd.img; do
+	if [ -f "$CASPER_DIR/$bootf" ]; then
+		XORRISO_ARGS+=(
+			-rm_r "/casper/$bootf" --
+			-map "$CASPER_DIR/$bootf" "/casper/$bootf"
+			-chmod a+r "/casper/$bootf" --
+		)
+	fi
+done
 
 xorriso "${XORRISO_ARGS[@]}"
 

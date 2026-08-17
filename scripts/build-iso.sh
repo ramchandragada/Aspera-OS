@@ -70,6 +70,10 @@ cp -a "$VENDOR"/*.deb "$WORK/edit/tmp/aspera-vendor/"
 cp -a "$ROOT/branding/logos/." "$WORK/edit/tmp/aspera-branding/"
 cp -a "$ROOT/branding/wallpapers/." "$WORK/edit/tmp/aspera-branding/"
 cp -a "$ROOT/iso/remaster/lists/." "$WORK/edit/tmp/aspera-lists/"
+mkdir -p "$WORK/edit/tmp/aspera-includes"
+if [ -d "$ROOT/iso/remaster/includes" ]; then
+	cp -a "$ROOT/iso/remaster/includes/." "$WORK/edit/tmp/aspera-includes/"
+fi
 
 mount --bind /dev "$WORK/edit/dev"
 mount -t proc proc "$WORK/edit/proc"
@@ -105,6 +109,17 @@ printf '%s' "$(du -sx --block-size=1 "$WORK/edit" | cut -f1)" > "$WORK/iso/caspe
 # Refresh package manifest if tool exists
 if [ -x "$WORK/edit/usr/bin/dpkg-query" ]; then
 	chroot "$WORK/edit" dpkg-query -W --showformat='${Package} ${Version}\n' > "$WORK/iso/casper/filesystem.manifest" || true
+fi
+
+# Live boot kernel must match modules inside the upgraded squashfs
+echo "Syncing casper kernel with remaster..."
+VMLINUZ=$(ls -1 "$WORK/edit/boot"/vmlinuz-* 2>/dev/null | sort -V | tail -1 || true)
+INITRD=$(ls -1 "$WORK/edit/boot"/initrd.img-* 2>/dev/null | sort -V | tail -1 || true)
+if [ -n "${VMLINUZ:-}" ]; then
+	cp -L "$VMLINUZ" "$WORK/iso/casper/vmlinuz"
+fi
+if [ -n "${INITRD:-}" ]; then
+	cp -L "$INITRD" "$WORK/iso/casper/initrd.lz"
 fi
 
 "$ROOT/scripts/assemble-iso.sh" "$MINT_ISO" \

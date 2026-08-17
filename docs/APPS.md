@@ -16,3 +16,5 @@
 Hypnotix, Thunderbird, Hexchat, Transmission, Drawing, Warpinator, mintchat if present, games (mines, sudoku), Rhythmbox, Pix (optional keep if needed for photos — **strip**), Bulky, Thingy, Redshift if unused, web apps stubs, welcome tour extras.
 
 Exact purge list: `iso/remaster/lists/purge.list`
+
+Also removed from menus: Matrix/Element, Web Apps, Thunderbird, Transmission, Celluloid, Hypnotix, Rhythmbox.

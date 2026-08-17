@@ -15,6 +15,11 @@ echo "aspera-pc" > /etc/hostname
 # Branding files
 install -d /usr/share/backgrounds/aspera /usr/share/pixmaps /usr/share/icons
 install -m 0644 /tmp/aspera-branding/aspera.png /usr/share/pixmaps/aspera.png
+if [ -f /tmp/aspera-branding/aspera-mark.png ]; then
+	install -m 0644 /tmp/aspera-branding/aspera-mark.png /usr/share/pixmaps/aspera-mark.png
+else
+	install -m 0644 /tmp/aspera-branding/aspera.png /usr/share/pixmaps/aspera-mark.png
+fi
 install -m 0644 /tmp/aspera-branding/aspera-avatar.png /usr/share/icons/aspera-avatar.png 2>/dev/null \
 	|| install -m 0644 /tmp/aspera-branding/aspera.png /usr/share/icons/aspera-avatar.png
 install -m 0644 /tmp/aspera-branding/aspera-default.png /usr/share/backgrounds/aspera/aspera-default.png 2>/dev/null \
@@ -25,6 +30,8 @@ mkdir -p /etc/apt/apt.conf.d
 printf 'Acquire::ForceIPv4 "true";\n' > /etc/apt/apt.conf.d/99aspera-force-ipv4
 
 apt-get update -qq
+echo "Upgrading all packages in the remaster (so the USB is current)..."
+apt-get -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" dist-upgrade
 
 NEVER_PURGE='ubiquity|casper|lightdm|slick-greeter|xfce4|grub|shim|mokutil|os-prober|user-setup|mint-meta|live-boot|live-config'
 
@@ -172,6 +179,56 @@ do
 	fi
 done
 
+# Hide leftover menu entries even if the package name differed
+for f in /usr/share/applications/*.desktop; do
+	[ -f "$f" ] || continue
+	base=$(basename "$f" | tr '[:upper:]' '[:lower:]')
+	case "$base" in
+		*thunderbird*|*transmission*|*hypnotix*|*celluloid*|*rhythmbox*|*webapp*|*matrix*|*element*|*nheko*|*fractal*)
+			grep -q '^NoDisplay=true' "$f" || echo 'NoDisplay=true' >> "$f" || true
+			;;
+	esac
+done
+
+# Whisker menu: Aspera mark only (no "Menu" text)
+mkdir -p /etc/skel/.config/xfce4/panel \
+	/etc/skel/.config/xfce4/xfconf/xfce-perchannel-xml \
+	/etc/xdg/xfce4/xfconf/xfce-perchannel-xml
+if [ -f /tmp/aspera-includes/xfce4-panel.xml ]; then
+	install -m 0644 /tmp/aspera-includes/xfce4-panel.xml \
+		/etc/skel/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-panel.xml
+	install -m 0644 /tmp/aspera-includes/xfce4-panel.xml \
+		/etc/xdg/xfce4/xfconf/xfce-perchannel-xml/xfce4-panel.xml
+fi
+if [ -f /tmp/aspera-includes/whiskermenu-1.rc ]; then
+	install -m 0644 /tmp/aspera-includes/whiskermenu-1.rc \
+		/etc/skel/.config/xfce4/panel/whiskermenu-1.rc
+fi
+
+# Left-side panel launchers: Chrome, Hub, TuxGenie, AnyDesk
+place_launcher() {
+	local id="$1"
+	local destname="$2"
+	shift 2
+	local src=""
+	local g
+	for g in "$@"; do
+		src=$(ls /usr/share/applications/$g 2>/dev/null | head -n1 || true)
+		[ -n "$src" ] && [ -f "$src" ] && break
+	done
+	if [ -z "$src" ] || [ ! -f "$src" ]; then
+		echo "WARN: no desktop file for panel launcher $destname ($*)"
+		return 0
+	fi
+	mkdir -p "/etc/skel/.config/xfce4/panel/launcher-${id}"
+	cp "$src" "/etc/skel/.config/xfce4/panel/launcher-${id}/${destname}"
+}
+
+place_launcher 2 chrome.desktop 'google-chrome*.desktop' 'google-chrome.desktop'
+place_launcher 3 hub.desktop '*aspera*.desktop' 'asperadock*.desktop'
+place_launcher 4 tuxgenie.desktop 'tuxgenie*.desktop'
+place_launcher 5 anydesk.desktop 'anydesk*.desktop'
+
 # Desktop shortcuts for staff apps
 mkdir -p /etc/skel/Desktop
 for app in google-chrome asperadock tuxgenie libreoffice-writer flameshot simplescreenrecorder vlc anydesk; do
@@ -181,6 +238,10 @@ for app in google-chrome asperadock tuxgenie libreoffice-writer flameshot simple
 	fi
 done
 chmod +x /etc/skel/Desktop/*.desktop 2>/dev/null || true
+
+# Rebuild initramfs so an upgraded kernel inside the squashfs has modules
+update-initramfs -u -k all 2>/dev/null || true
+
 
 # Fail the remaster if the three basics are missing
 for pkg in lightdm ubiquity; do
