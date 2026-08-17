@@ -107,40 +107,15 @@ if [ -x "$WORK/edit/usr/bin/dpkg-query" ]; then
 	chroot "$WORK/edit" dpkg-query -W --showformat='${Package} ${Version}\n' > "$WORK/iso/casper/filesystem.manifest" || true
 fi
 
-echo "Forcing live boot menu straight to GUI..."
-# Short menu, default Start Aspera, no installer quiz prompts on live try
-LIVE_ARGS='boot=casper quiet splash noprompt noeject username=mint hostname=aspera-pc ---'
-if [ -f "$WORK/iso/isolinux/isolinux.cfg" ]; then
-	sed -i 's/^timeout .*/timeout 30/' "$WORK/iso/isolinux/isolinux.cfg" || true
-	sed -i 's/^PROMPT .*/PROMPT 0/' "$WORK/iso/isolinux/isolinux.cfg" || true
-fi
-# Rewrite common Mint live kernel lines to our args (keep path to vmlinuz/initrd)
-for cfg in "$WORK/iso/isolinux/isolinux.cfg" \
-	"$WORK/iso/isolinux/live.cfg" \
-	"$WORK/iso/boot/grub/grub.cfg" \
-	"$WORK/iso/boot/grub/loopback.cfg"
-do
-	[ -f "$cfg" ] || continue
-	# Prefer safe graphics-friendly live boot; strip maybe-ubiquity installer default
-	sed -i -E \
-		-e 's/maybe-ubiquity[[:space:]]*//g' \
-		-e 's/only-ubiquity[[:space:]]*//g' \
-		"$cfg" || true
-	# Ensure quiet splash noprompt on linux/append lines that boot casper
-	if grep -q 'boot=casper' "$cfg" 2>/dev/null; then
-		sed -i -E 's/(boot=casper)([^\\n]*)/\1 quiet splash noprompt noeject username=mint hostname=aspera-pc ---/g' "$cfg" || true
-		# Clean doubled tokens from naive replace
-		sed -i -E 's/(quiet )+/\1/g; s/(splash )+/\1/g; s/(noprompt )+/\1/g' "$cfg" || true
-	fi
-done
-# GRUB timeout: show briefly then boot
-if [ -f "$WORK/iso/boot/grub/grub.cfg" ]; then
-	sed -i 's/set timeout=.*/set timeout=3/' "$WORK/iso/boot/grub/grub.cfg" || true
-	grep -q 'set default=' "$WORK/iso/boot/grub/grub.cfg" || sed -i '1iset default=0' "$WORK/iso/boot/grub/grub.cfg" || true
-fi
+"$ROOT/scripts/patch-live-boot.sh" "$WORK/iso"
 
-# Volume label
-VOLID="ASPERA_OS_1_0"
+# Keep Mint's original volume label. Changing it makes casper miss the CD
+# (kernel panic: VFS: Unable to mount root fs on unknown-block(0,0)).
+VOLID="${MINT_VOLID:-Linux Mint}"
+if command -v xorriso >/dev/null 2>&1 && [ -f "$MINT_ISO" ]; then
+	VOLID="$(xorriso -indev "$MINT_ISO" -status 2>/dev/null | awk -F"'" '/Volume id/ {print $2; exit}' || true)"
+	VOLID="${VOLID:-Linux Mint}"
+fi
 
 echo "Building hybrid ISO..."
 rm -f "$OUT"

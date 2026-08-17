@@ -54,6 +54,6 @@
 
 ## ADR-009 — Boots straight to the GUI
 
-**Decision:** Live USB and installed PCs start in the graphical desktop (LightDM + XFCE). Live session auto-logs in as `mint`. No language/keyboard quiz on try-session. Boot menu timeout is a few seconds.
+**Decision:** Live USB and installed PCs start in the graphical desktop (LightDM + XFCE). Live session auto-logs in as `mint`. Boot menu timeout is a few seconds. Live boot args are **appended**; kernel/initrd paths are never rewritten. ISO volume label stays Linux Mint’s so casper can find the disc.
 
-**Why:** Staff are not Linux installers. “Turn on the PC” must mean the desktop.
+**Why:** Staff are not Linux installers. A bad rewrite of `initrd=` caused `VFS: Unable to mount root fs on unknown-block(0,0)` in VirtualBox. That is a crash, not a wait.
