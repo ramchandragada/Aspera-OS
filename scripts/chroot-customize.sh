@@ -102,31 +102,20 @@ Comment=Screenshot tool
 X-GNOME-Autostart-enabled=true
 EOF
 
-# XFCE wallpaper for new users (copied by the installer into the first account)
-mkdir -p /etc/skel/.config/xfce4/xfconf/xfce-perchannel-xml
-cat > /etc/skel/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-desktop.xml <<'EOF'
-<?xml version="1.0" encoding="UTF-8"?>
-<channel name="xfce4-desktop" version="1.0">
-  <property name="backdrop" type="empty">
-    <property name="screen0" type="empty">
-      <property name="monitor0" type="empty">
-        <property name="workspace0" type="empty">
-          <property name="color-style" type="int" value="0"/>
-          <property name="image-style" type="int" value="5"/>
-          <property name="last-image" type="string" value="/usr/share/backgrounds/aspera/aspera-default.png"/>
-        </property>
-      </property>
-      <property name="monitorVbox0" type="empty">
-        <property name="workspace0" type="empty">
-          <property name="color-style" type="int" value="0"/>
-          <property name="image-style" type="int" value="5"/>
-          <property name="last-image" type="string" value="/usr/share/backgrounds/aspera/aspera-default.png"/>
-        </property>
-      </property>
-    </property>
-  </property>
-</channel>
-EOF
+# XFCE wallpaper, desktop icons, light theme (from remaster includes)
+mkdir -p /etc/skel/.config/xfce4/xfconf/xfce-perchannel-xml \
+	/etc/xdg/xfce4/xfconf/xfce-perchannel-xml
+for cfg in xfce4-desktop.xml xfce4-panel.xml xsettings.xml xfwm4.xml; do
+	if [ -f "/tmp/aspera-includes/$cfg" ]; then
+		install -m 0644 "/tmp/aspera-includes/$cfg" \
+			"/etc/skel/.config/xfce4/xfconf/xfce-perchannel-xml/$cfg"
+		install -m 0644 "/tmp/aspera-includes/$cfg" \
+			"/etc/xdg/xfce4/xfconf/xfce-perchannel-xml/$cfg"
+	fi
+done
+# Replace any other shipped panel defaults so Mint's app-grid launcher cannot return
+find /etc/xdg -name 'xfce4-panel.xml' -exec cp /etc/skel/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-panel.xml {} \; 2>/dev/null || true
+rm -f /etc/xdg/xfce4/panel/default.xml 2>/dev/null || true
 
 # GUI session for live AND installed. Do NOT autologin as mint here —
 # that file is copied onto the hard disk and then nobody can log in.
@@ -141,8 +130,8 @@ rm -f /etc/lightdm/lightdm.conf.d/50-aspera-autologin.conf
 cat > /etc/lightdm/slick-greeter.conf <<'EOF'
 [Greeter]
 background=/usr/share/backgrounds/aspera/aspera-default.png
-theme-name=Mint-Y-Dark-Blue
-icon-theme-name=Mint-Y-Dark-Blue
+theme-name=Mint-Y
+icon-theme-name=Mint-Y
 draw-user-backgrounds=false
 EOF
 
@@ -176,9 +165,32 @@ chmod 0755 /usr/lib/ubiquity/target-config/10aspera-installed-login
 systemctl set-default graphical.target 2>/dev/null || true
 systemctl enable lightdm.service 2>/dev/null || true
 
-# Hide first-run welcome; keep mintupdate available after install
-rm -f /etc/xdg/autostart/mintwelcome.desktop 2>/dev/null || true
-mkdir -p /etc/skel/.config/autostart
+# Faster login: drop leftover / non-essential autostart (keep NM, power, polkit, updates)
+for f in \
+	/etc/xdg/autostart/warpinator.desktop \
+	/etc/xdg/autostart/xfce4-notes-autostart.desktop \
+	/etc/xdg/autostart/sticky.desktop \
+	/etc/xdg/autostart/mintreport.desktop \
+	/etc/xdg/autostart/mintreport-tray.desktop \
+	/etc/xdg/autostart/nvidia-prime-applet.desktop \
+	/etc/xdg/autostart/vmware-user.desktop \
+	/etc/xdg/autostart/onboard-autostart.desktop \
+	/etc/xdg/autostart/orage-*.desktop \
+	/etc/xdg/autostart/xfce4-clipman-plugin-autostart.desktop
+do
+	rm -f $f 2>/dev/null || true
+done
+# Hide if removal is blocked
+for f in /etc/xdg/autostart/*.desktop; do
+	[ -f "$f" ] || continue
+	base=$(basename "$f" | tr '[:upper:]' '[:lower:]')
+	case "$base" in
+		*warpinator*|*notes*|*sticky*|*mintreport*|*vmware*|*onboard*|*prime*)
+			echo 'Hidden=true' >> "$f" || true
+			echo 'X-GNOME-Autostart-enabled=false' >> "$f" || true
+			;;
+	esac
+done
 
 # Hide Software Manager from casual use
 for f in \
@@ -196,28 +208,19 @@ for f in /usr/share/applications/*.desktop; do
 	[ -f "$f" ] || continue
 	base=$(basename "$f" | tr '[:upper:]' '[:lower:]')
 	case "$base" in
-		*thunderbird*|*transmission*|*hypnotix*|*celluloid*|*rhythmbox*|*webapp*|*matrix*|*element*|*nheko*|*fractal*|*warpinator*|*mintstick*|*usb-image*|*notes*|*libreoffice-base*|*libreoffice-math*)
+		*thunderbird*|*transmission*|*hypnotix*|*celluloid*|*rhythmbox*|*webapp*|*matrix*|*element*|*nheko*|*fractal*|*warpinator*|*mintstick*|*usb-image*|*notes*|*libreoffice-base*|*libreoffice-math*|*firefox*)
 			grep -q '^NoDisplay=true' "$f" || echo 'NoDisplay=true' >> "$f" || true
 			;;
 	esac
 done
 
-# Whisker menu: Aspera mark only (no "Menu" text)
-mkdir -p /etc/skel/.config/xfce4/panel \
-	/etc/skel/.config/xfce4/xfconf/xfce-perchannel-xml \
-	/etc/xdg/xfce4/xfconf/xfce-perchannel-xml
-if [ -f /tmp/aspera-includes/xfce4-panel.xml ]; then
-	install -m 0644 /tmp/aspera-includes/xfce4-panel.xml \
-		/etc/skel/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-panel.xml
-	install -m 0644 /tmp/aspera-includes/xfce4-panel.xml \
-		/etc/xdg/xfce4/xfconf/xfce-perchannel-xml/xfce4-panel.xml
-fi
+# Whisker menu: full Aspera wordmark, no "Menu" text
 if [ -f /tmp/aspera-includes/whiskermenu-1.rc ]; then
 	install -m 0644 /tmp/aspera-includes/whiskermenu-1.rc \
 		/etc/skel/.config/xfce4/panel/whiskermenu-1.rc
 fi
 
-# Left-side panel launchers: Chrome, Hub, TuxGenie, AnyDesk
+# Panel launchers (left): Chrome, Hub, TuxGenie, PDF Signer, Writer, Calc, SSR, AnyDesk
 place_launcher() {
 	local id="$1"
 	local destname="$2"
@@ -233,13 +236,18 @@ place_launcher() {
 		return 0
 	fi
 	mkdir -p "/etc/skel/.config/xfce4/panel/launcher-${id}"
+	rm -f "/etc/skel/.config/xfce4/panel/launcher-${id}/"*
 	cp "$src" "/etc/skel/.config/xfce4/panel/launcher-${id}/${destname}"
 }
 
 place_launcher 2 chrome.desktop 'google-chrome*.desktop' 'google-chrome.desktop'
-place_launcher 3 hub.desktop '*aspera*.desktop' 'asperadock*.desktop'
-place_launcher 4 tuxgenie.desktop 'tuxgenie*.desktop'
-place_launcher 5 anydesk.desktop 'anydesk*.desktop'
+place_launcher 3 hub.desktop 'asperadock*.desktop' '*hub*.desktop'
+place_launcher 4 tuxgenie.desktop 'tuxgenie*.desktop' '*tuxgenie*.desktop'
+place_launcher 5 pdfsigner.desktop '*sign*verifier*.desktop' 'pdf-sign*.desktop' '*verifier*.desktop'
+place_launcher 6 writer.desktop 'libreoffice-writer.desktop'
+place_launcher 7 calc.desktop 'libreoffice-calc.desktop'
+place_launcher 8 ssr.desktop 'simplescreenrecorder.desktop' '*simplescreen*.desktop'
+place_launcher 9 anydesk.desktop 'anydesk*.desktop'
 
 # Desktop shortcuts for staff apps
 mkdir -p /etc/skel/Desktop

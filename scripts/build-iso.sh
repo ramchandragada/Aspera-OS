@@ -8,8 +8,8 @@ WORK="${ASPERA_WORK:-$ROOT/.build/remaster}"
 OUT="$ROOT/aspera-os-1.0-amd64.iso"
 VENDOR="$ROOT/vendor"
 
-# Linux Mint 22.1 XFCE (Wilma) — amd64 64-bit
-MINT_VERSION="${MINT_VERSION:-22.1}"
+# Linux Mint 22.3 XFCE (Zena) — already the current point release
+MINT_VERSION="${MINT_VERSION:-22.3}"
 MINT_EDITION="xfce"
 MINT_ISO_NAME="linuxmint-${MINT_VERSION}-${MINT_EDITION}-64bit.iso"
 MINT_ISO_URL="${MINT_ISO_URL:-https://mirrors.kernel.org/linuxmint/stable/${MINT_VERSION}/${MINT_ISO_NAME}}"
