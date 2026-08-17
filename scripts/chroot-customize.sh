@@ -196,7 +196,7 @@ for f in /usr/share/applications/*.desktop; do
 	[ -f "$f" ] || continue
 	base=$(basename "$f" | tr '[:upper:]' '[:lower:]')
 	case "$base" in
-		*thunderbird*|*transmission*|*hypnotix*|*celluloid*|*rhythmbox*|*webapp*|*matrix*|*element*|*nheko*|*fractal*|*warpinator*|*mintstick*|*usb-image*|*notes*|*libreoffice-base*|*libreoffice-math*|*screenshooter*)
+		*thunderbird*|*transmission*|*hypnotix*|*celluloid*|*rhythmbox*|*webapp*|*matrix*|*element*|*nheko*|*fractal*|*warpinator*|*mintstick*|*usb-image*|*notes*|*libreoffice-base*|*libreoffice-math*)
 			grep -q '^NoDisplay=true' "$f" || echo 'NoDisplay=true' >> "$f" || true
 			;;
 	esac
