@@ -7,6 +7,8 @@ fail() { echo "FAIL: $*" >&2; exit 1; }
 test -f "$ROOT/scripts/build-iso.sh" || fail "build-iso.sh missing"
 test -f "$ROOT/scripts/assemble-iso.sh" || fail "assemble-iso.sh missing"
 test -f "$ROOT/scripts/chroot-customize.sh" || fail "chroot-customize.sh missing"
+test -f "$ROOT/scripts/lib-remaster-mounts.sh" || fail "lib-remaster-mounts.sh missing"
+test -f "$ROOT/scripts/clean-remaster.sh" || fail "clean-remaster.sh missing"
 test -f "$ROOT/branding/logos/aspera.png" || fail "logo missing"
 test -f "$ROOT/iso/remaster/lists/install.list" || fail "install.list missing"
 test -f "$ROOT/iso/remaster/lists/purge.list" || fail "purge.list missing"
@@ -35,10 +37,19 @@ grep -q 'target-config/10aspera-installed-login' "$ROOT/scripts/chroot-customize
 grep -q 'set-default graphical.target' "$ROOT/scripts/chroot-customize.sh" \
 	|| fail "graphical.target must be the default"
 
+grep -q 'lib-remaster-mounts.sh' "$ROOT/scripts/build-iso.sh" \
+	|| fail "build-iso.sh must use lib-remaster-mounts.sh"
+grep -q 'assert_chroot_unmounted' "$ROOT/scripts/build-iso.sh" \
+	|| fail "build-iso.sh must refuse rm -rf while /sys is still bound"
+grep -q 'umount -l' "$ROOT/scripts/lib-remaster-mounts.sh" \
+	|| fail "unmount helper must use umount -l"
+
 bash -n "$ROOT/scripts/build-iso.sh"
 bash -n "$ROOT/scripts/assemble-iso.sh"
 bash -n "$ROOT/scripts/chroot-customize.sh"
 bash -n "$ROOT/scripts/fix-iso-boot.sh"
 bash -n "$ROOT/scripts/fetch-vendor.sh"
+bash -n "$ROOT/scripts/lib-remaster-mounts.sh"
+bash -n "$ROOT/scripts/clean-remaster.sh"
 
 echo "OK: remaster recipe keeps live GUI, installer, and installed login."

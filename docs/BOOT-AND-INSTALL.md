@@ -26,3 +26,24 @@ sudo chown -R shree:shree .
 git pull
 sudo scripts/build-iso.sh
 ```
+
+If a rebuild was interrupted, leftover mounts can make cleanup print
+`rm: cannot remove '.../.build/remaster/edit/sys/module/...': Operation not permitted`.
+That is the host kernel tree still bound into the work folder. Unmount it
+before deleting:
+
+```bash
+sudo scripts/clean-remaster.sh
+```
+
+Then run `sudo scripts/build-iso.sh` again. If the helper is not on this
+clone yet, unmount by hand:
+
+```bash
+sudo umount -l ~/Aspera-OS/.build/remaster/edit/dev/pts
+sudo umount -l ~/Aspera-OS/.build/remaster/edit/dev
+sudo umount -l ~/Aspera-OS/.build/remaster/edit/proc
+sudo umount -l ~/Aspera-OS/.build/remaster/edit/sys
+sudo umount -l ~/Aspera-OS/.build/remaster/mount
+sudo rm -rf ~/Aspera-OS/.build/remaster
+```
