@@ -9,15 +9,8 @@
     - /usr/share/applications/ubuntu-software.desktop
   failed_when: false
 
-- name: Write os-release
-  ansible.builtin.copy:
-    dest: /etc/os-release
-    content: |
-      PRETTY_NAME="Aspera OS 1.0"
-      NAME="Aspera OS"
-      VERSION_ID="1.0"
-      VERSION="1.0 (Mint XFCE)"
-      VERSION_CODENAME=aspera
-      ID=aspera
-      ID_LIKE="ubuntu debian"
-      HOME_URL="https://github.com/ramchandragada/Aspera-OS"
+- name: Brand os pretty name
+  ansible.builtin.lineinfile:
+    path: /etc/os-release
+    regexp: '^PRETTY_NAME='
+    line: 'PRETTY_NAME="Aspera OS 1.0"'

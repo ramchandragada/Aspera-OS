@@ -17,8 +17,7 @@ jobs:
           test -f branding/logos/aspera.png
           test -f ansible/playbooks/mint-to-aspera.yml
           test -x scripts/fetch-vendor.sh || chmod +x scripts/*.sh
-      - name: Shell syntax
+      - name: Remaster recipe guardrails
         run: |
-          bash -n scripts/fetch-vendor.sh
-          bash -n scripts/build-iso.sh
-          bash -n scripts/chroot-customize.sh
+          chmod +x scripts/*.sh
+          scripts/check-recipe.sh

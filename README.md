@@ -41,6 +41,7 @@ ansible-playbook -i inventory/hosts.yml playbooks/mint-to-aspera.yml
 
 ## Docs
 
+- [Live, install, login](docs/BOOT-AND-INSTALL.md)
 - [Decisions](docs/DECISIONS.md)
 - [Apps](docs/APPS.md)
 - [Hardware](docs/HARDWARE.md)
