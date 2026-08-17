@@ -4,6 +4,7 @@
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+. "$ROOT/scripts/lib-remaster-mounts.sh"
 WORK="${ASPERA_WORK:-$ROOT/.build/remaster}"
 OUT="$ROOT/aspera-os-1.0-amd64.iso"
 VENDOR="$ROOT/vendor"
@@ -19,6 +20,9 @@ if [ "$(id -u)" -ne 0 ]; then
 	echo "Run as: sudo $0"
 	exit 1
 fi
+
+aspera_unmount_on_exit() { unmount_chroot "$WORK" || true; }
+trap aspera_unmount_on_exit EXIT
 
 need() { command -v "$1" >/dev/null 2>&1 || { echo "Missing tool: $1"; exit 1; }; }
 need curl
@@ -45,15 +49,8 @@ fi
 ls -lh "$MINT_ISO"
 
 echo "Cleaning work dir..."
-# Unmount any leftover chroot binds from a previous failed run
-if [ -d "$WORK/edit" ]; then
-	umount "$WORK/edit/dev/pts" 2>/dev/null || true
-	umount "$WORK/edit/dev" 2>/dev/null || true
-	umount "$WORK/edit/run" 2>/dev/null || true
-	umount "$WORK/edit/proc" 2>/dev/null || true
-	umount "$WORK/edit/sys" 2>/dev/null || true
-	umount "$WORK/mount" 2>/dev/null || true
-fi
+unmount_chroot "$WORK"
+assert_chroot_unmounted "$WORK"
 rm -rf "$WORK"
 mkdir -p "$WORK"/{iso,squash,edit,mount}
 
@@ -92,10 +89,8 @@ EOF
 chroot "$WORK/edit" /bin/bash /tmp/chroot-customize.sh
 status=$?
 
-umount "$WORK/edit/dev/pts" 2>/dev/null || true
-umount "$WORK/edit/dev" 2>/dev/null || true
-umount "$WORK/edit/proc" 2>/dev/null || true
-umount "$WORK/edit/sys" 2>/dev/null || true
+unmount_chroot "$WORK"
+assert_chroot_unmounted "$WORK"
 
 if [ "$status" -ne 0 ]; then
 	echo "ERROR: chroot customization failed"
