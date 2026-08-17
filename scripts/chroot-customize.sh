@@ -24,6 +24,11 @@ install -m 0644 /tmp/aspera-branding/aspera-avatar.png /usr/share/icons/aspera-a
 	|| install -m 0644 /tmp/aspera-branding/aspera.png /usr/share/icons/aspera-avatar.png
 install -m 0644 /tmp/aspera-branding/aspera-default.png /usr/share/backgrounds/aspera/aspera-default.png 2>/dev/null \
 	|| install -m 0644 /tmp/aspera-branding/aspera.png /usr/share/backgrounds/aspera/aspera-default.png
+# Also win Mint's "default wallpaper" slot so Appearance cannot snap back
+if [ -d /usr/share/backgrounds/linuxmint ]; then
+	install -m 0644 /usr/share/backgrounds/aspera/aspera-default.png \
+		/usr/share/backgrounds/linuxmint/default_background.jpg 2>/dev/null || true
+fi
 
 # Force IPv4 for apt on flaky networks
 mkdir -p /etc/apt/apt.conf.d
@@ -215,6 +220,7 @@ for f in /usr/share/applications/*.desktop; do
 done
 
 # Whisker menu: full Aspera wordmark, no "Menu" text
+mkdir -p /etc/skel/.config/xfce4/panel
 if [ -f /tmp/aspera-includes/whiskermenu-1.rc ]; then
 	install -m 0644 /tmp/aspera-includes/whiskermenu-1.rc \
 		/etc/skel/.config/xfce4/panel/whiskermenu-1.rc
