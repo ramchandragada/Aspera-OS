@@ -6,6 +6,7 @@ aspera_apt_apps:
   - libreoffice-draw
   - simplescreenrecorder
   - flameshot
+  - xfce4-screenshooter
   - vlc
 aspera_purge_apps:
   - hypnotix
@@ -22,6 +23,5 @@ aspera_purge_apps:
   - libreoffice-math
   - mintstick
   - xfce4-notes
-  - xfce4-screenshooter
   - webapp-manager
   - celluloid
