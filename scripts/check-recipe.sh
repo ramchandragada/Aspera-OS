@@ -37,6 +37,9 @@ grep -q 'target-config/10aspera-installed-login' "$ROOT/scripts/chroot-customize
 grep -q 'set-default graphical.target' "$ROOT/scripts/chroot-customize.sh" \
 	|| fail "graphical.target must be the default"
 
+grep -q 'apply_aspera_xfce_profile /home/mint' "$ROOT/scripts/chroot-customize.sh" \
+	|| fail "live session must get Aspera XFCE settings in /home/mint"
+
 grep -q 'lib-remaster-mounts.sh' "$ROOT/scripts/build-iso.sh" \
 	|| fail "build-iso.sh must use lib-remaster-mounts.sh"
 grep -q 'assert_chroot_unmounted' "$ROOT/scripts/build-iso.sh" \

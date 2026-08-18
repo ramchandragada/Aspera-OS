@@ -265,6 +265,53 @@ for app in google-chrome asperadock tuxgenie libreoffice-writer flameshot simple
 done
 chmod +x /etc/skel/Desktop/*.desktop 2>/dev/null || true
 
+# Live USB boots as user "mint" with a pre-seeded /home/mint from the Mint
+# squashfs. /etc/skel only affects new accounts (installer), not the live desk.
+apply_aspera_xfce_profile() {
+	local home="$1"
+	local uid="$2"
+	local gid="$3"
+	[ -d "$home" ] || return 0
+
+	mkdir -p "$home/.config/xfce4/xfconf/xfce-perchannel-xml" \
+		"$home/.config/xfce4/panel"
+
+	for cfg in xfce4-desktop.xml xfce4-panel.xml xsettings.xml xfwm4.xml; do
+		[ -f "/etc/skel/.config/xfce4/xfconf/xfce-perchannel-xml/$cfg" ] || continue
+		install -m 0644 "/etc/skel/.config/xfce4/xfconf/xfce-perchannel-xml/$cfg" \
+			"$home/.config/xfce4/xfconf/xfce-perchannel-xml/$cfg"
+	done
+
+	if [ -f /etc/skel/.config/xfce4/panel/whiskermenu-1.rc ]; then
+		install -m 0644 /etc/skel/.config/xfce4/panel/whiskermenu-1.rc \
+			"$home/.config/xfce4/panel/whiskermenu-1.rc"
+	fi
+
+	# Drop Mint's app-grid launcher and any other stale panel launchers.
+	find "$home/.config/xfce4/panel" -maxdepth 1 -type d -name 'launcher-*' \
+		-exec rm -rf {} + 2>/dev/null || true
+	for d in /etc/skel/.config/xfce4/panel/launcher-*; do
+		[ -d "$d" ] || continue
+		cp -a "$d" "$home/.config/xfce4/panel/"
+	done
+	rm -f "$home/.config/xfce4/panel/default.xml" 2>/dev/null || true
+
+	if [ -d /etc/skel/Desktop ]; then
+		mkdir -p "$home/Desktop"
+		cp -a /etc/skel/Desktop/. "$home/Desktop/" 2>/dev/null || true
+		chmod +x "$home/Desktop/"*.desktop 2>/dev/null || true
+	fi
+
+	rm -rf "$home/.cache/xfce4" 2>/dev/null || true
+	chown -R "$uid:$gid" "$home/.config" "$home/Desktop" 2>/dev/null || true
+}
+
+if [ -d /home/mint ]; then
+	MINT_UID=$(id -u mint 2>/dev/null || echo 1000)
+	MINT_GID=$(id -g mint 2>/dev/null || echo 1000)
+	apply_aspera_xfce_profile /home/mint "$MINT_UID" "$MINT_GID"
+fi
+
 # Rebuild initramfs so an upgraded kernel inside the squashfs has modules
 update-initramfs -u -k all 2>/dev/null || true
 

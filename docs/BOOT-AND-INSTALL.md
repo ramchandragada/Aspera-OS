@@ -16,6 +16,13 @@ This is a **Linux Mint XFCE remaster**, not a new OS. Three things must work:
 
 A kernel panic (`Unable to mount root fs`) is a crash. Do not wait.
 
+## Why the desk still looked like Mint
+
+The live session logs in as **mint**, using the home folder baked into the Mint
+squashfs. Settings copied only to `/etc/skel` affect **new** users after install,
+not the live desktop. The remaster now applies the same panel, wallpaper, light
+theme, and desktop icons to `/home/mint` as well.
+
 ## Rebuild
 
 Full remaster (needed after chroot/login fixes):
