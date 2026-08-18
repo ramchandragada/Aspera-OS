@@ -4,12 +4,13 @@
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+. "$ROOT/scripts/lib-remaster-mounts.sh"
 WORK="${ASPERA_WORK:-$ROOT/.build/remaster}"
 OUT="$ROOT/aspera-os-1.0-amd64.iso"
 VENDOR="$ROOT/vendor"
 
-# Linux Mint 22.1 XFCE (Wilma) — amd64 64-bit
-MINT_VERSION="${MINT_VERSION:-22.1}"
+# Linux Mint 22.3 XFCE (Zena) — already the current point release
+MINT_VERSION="${MINT_VERSION:-22.3}"
 MINT_EDITION="xfce"
 MINT_ISO_NAME="linuxmint-${MINT_VERSION}-${MINT_EDITION}-64bit.iso"
 MINT_ISO_URL="${MINT_ISO_URL:-https://mirrors.kernel.org/linuxmint/stable/${MINT_VERSION}/${MINT_ISO_NAME}}"
@@ -19,6 +20,9 @@ if [ "$(id -u)" -ne 0 ]; then
 	echo "Run as: sudo $0"
 	exit 1
 fi
+
+aspera_unmount_on_exit() { unmount_chroot "$WORK" || true; }
+trap aspera_unmount_on_exit EXIT
 
 need() { command -v "$1" >/dev/null 2>&1 || { echo "Missing tool: $1"; exit 1; }; }
 need curl
@@ -45,15 +49,8 @@ fi
 ls -lh "$MINT_ISO"
 
 echo "Cleaning work dir..."
-# Unmount any leftover chroot binds from a previous failed run
-if [ -d "$WORK/edit" ]; then
-	umount "$WORK/edit/dev/pts" 2>/dev/null || true
-	umount "$WORK/edit/dev" 2>/dev/null || true
-	umount "$WORK/edit/run" 2>/dev/null || true
-	umount "$WORK/edit/proc" 2>/dev/null || true
-	umount "$WORK/edit/sys" 2>/dev/null || true
-	umount "$WORK/mount" 2>/dev/null || true
-fi
+unmount_chroot "$WORK"
+assert_chroot_unmounted "$WORK"
 rm -rf "$WORK"
 mkdir -p "$WORK"/{iso,squash,edit,mount}
 
@@ -92,10 +89,8 @@ EOF
 chroot "$WORK/edit" /bin/bash /tmp/chroot-customize.sh
 status=$?
 
-umount "$WORK/edit/dev/pts" 2>/dev/null || true
-umount "$WORK/edit/dev" 2>/dev/null || true
-umount "$WORK/edit/proc" 2>/dev/null || true
-umount "$WORK/edit/sys" 2>/dev/null || true
+unmount_chroot "$WORK"
+assert_chroot_unmounted "$WORK"
 
 if [ "$status" -ne 0 ]; then
 	echo "ERROR: chroot customization failed"

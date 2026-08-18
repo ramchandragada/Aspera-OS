@@ -22,16 +22,22 @@ Nothing else is a product app.
 
 **Intel Core i5 4th gen · 8 GB RAM · 128 GB SSD**
 
-## Build the USB (on a Linux PC)
+## Work from another PC (office)
+
+GitHub is the copy that matters. Clone this branch — do not copy the home
+folder or the old ISO:
 
 ```bash
-git clone https://github.com/ramchandragada/Aspera-OS.git
+git clone -b cursor/fix-live-desktop-b747 \
+  https://github.com/ramchandragada/Aspera-OS.git
 cd Aspera-OS
 sudo scripts/fetch-vendor.sh
 sudo scripts/build-iso.sh
 ```
 
 ISO output: `aspera-os-1.0-amd64.iso`
+
+Full office-PC notes: [docs/OFFICE-PC.md](docs/OFFICE-PC.md)
 
 ## Existing Mint PCs (no wipe)
 
@@ -43,6 +49,7 @@ ansible-playbook -i inventory/hosts.yml playbooks/mint-to-aspera.yml
 ## Docs
 
 - [Live, install, login](docs/BOOT-AND-INSTALL.md)
+- [Office PC](docs/OFFICE-PC.md)
 - [Decisions](docs/DECISIONS.md)
 - [Apps](docs/APPS.md)
 - [Hardware](docs/HARDWARE.md)

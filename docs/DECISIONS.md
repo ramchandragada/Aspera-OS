@@ -6,7 +6,7 @@
 
 ## ADR-001 — Linux Mint XFCE is the base
 
-**Decision:** Remaster current Linux Mint **XFCE** LTS. Do not build Ubuntu GNOME or Debian from scratch.
+**Decision:** Remaster current Linux Mint **XFCE 22.3** LTS. Do not build Ubuntu GNOME or Debian from scratch.
 
 **Why:** Staff already understand Mint/XFCE. XFCE is the lightest serious desktop Mint ships. Speed and stability beat inventing a new stack.
 
