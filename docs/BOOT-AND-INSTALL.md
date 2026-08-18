@@ -8,11 +8,19 @@ This is a **Linux Mint XFCE remaster**, not a new OS. Three things must work:
 
 ## VirtualBox dry-run
 
-- Power off the VM first
-- System → **uncheck Enable EFI**
+Do **not** install Linux Mint in the VM. Create a **new empty machine** and boot
+only `aspera-os-1.0-amd64.iso`.
+
+- Machine → New
+- Type: **Linux**, Version: **Debian (64-bit)** (VirtualBox label only — the
+  disk stays empty until Aspera boots)
 - Memory **4096 MB** or more, disk **25 GB** or more
-- Storage: remove any old ISO, attach the new `aspera-os-1.0-amd64.iso`
+- System → **uncheck Enable EFI**
+- Storage: attach **only** `~/Aspera-OS/aspera-os-1.0-amd64.iso`
 - Prefer the optical drive on **IDE**
+
+If an old Mint VM is still listed, remove it (Machine → Remove) so you cannot
+accidentally boot the previous disk.
 
 A kernel panic (`Unable to mount root fs`) is a crash. Do not wait.
 
@@ -30,7 +38,9 @@ Full remaster (needed after chroot/login fixes):
 ```bash
 cd ~/Aspera-OS
 sudo chown -R shree:shree .
-git pull
+git fetch origin
+git checkout cursor/fix-live-desktop-b747
+git pull origin cursor/fix-live-desktop-b747
 sudo scripts/build-iso.sh
 ```
 
