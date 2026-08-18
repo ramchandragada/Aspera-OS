@@ -35,6 +35,10 @@ theme, and desktop icons to `/home/mint` as well.
 
 Full remaster (needed after chroot/login fixes):
 
+On a **new PC** (office), clone instead of pull — see [OFFICE-PC.md](OFFICE-PC.md).
+
+On the existing laptop:
+
 ```bash
 cd ~/Aspera-OS
 sudo chown -R shree:shree .
