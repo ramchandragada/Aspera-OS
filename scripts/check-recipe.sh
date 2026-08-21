@@ -23,6 +23,14 @@ grep -q 'Mint-Y-Dark' "$ROOT/iso/remaster/includes/xsettings.xml" \
 	&& fail "do not default to Mint-Y-Dark"
 grep -q 'keeping English only' "$ROOT/scripts/chroot-customize.sh" \
 	|| fail "remaster must strip non-English locales"
+grep -q '99-aspera-swappiness.conf' "$ROOT/scripts/chroot-customize.sh" \
+	|| fail "remaster must set vm.swappiness"
+grep -q 'Do NOT disable cups or bluetooth' "$ROOT/scripts/chroot-customize.sh" \
+	|| fail "remaster must keep cups/bluetooth (printers and laptops)"
+grep -qx 'flatpak' "$ROOT/iso/remaster/lists/purge.list" \
+	|| fail "flatpak must be purged (no staff store)"
+grep -qx 'preload' "$ROOT/iso/remaster/lists/purge.list" \
+	|| fail "preload must be purged"
 test -f "$ROOT/iso/remaster/lists/install.list" || fail "install.list missing"
 test -f "$ROOT/iso/remaster/lists/purge.list" || fail "purge.list missing"
 

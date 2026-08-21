@@ -22,6 +22,7 @@ aspera_purge_apps:
   - libreoffice-impress
   - libreoffice-math
   - mintstick
+  - mintwelcome
   - xfce4-notes
   - xfce4-screenshooter
   - webapp-manager
@@ -30,3 +31,7 @@ aspera_purge_apps:
   - element-desktop
   - fractal
   - nheko
+  - flatpak
+  - pix
+  - preload
+  - blueberry
