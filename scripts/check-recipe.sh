@@ -61,8 +61,10 @@ grep -q 'set-default graphical.target' "$ROOT/scripts/chroot-customize.sh" \
 grep -q 'apply_aspera_xfce_profile /home/mint' "$ROOT/scripts/chroot-customize.sh" \
 	|| fail "live session must get Aspera XFCE settings in /home/mint"
 
-grep -q 'lib-remaster-mounts.sh' "$ROOT/scripts/build-iso.sh" \
-	|| fail "build-iso.sh must use lib-remaster-mounts.sh"
+grep -q 'xorriso -osirrox on' "$ROOT/scripts/build-iso.sh" \
+	|| fail "build-iso must extract Mint ISO with xorriso (no iso9660 mount)"
+grep -E '^[[:space:]]*mount -o loop' "$ROOT/scripts/build-iso.sh" \
+	&& fail "build-iso must not loop-mount the Mint ISO"
 grep -q 'assert_chroot_unmounted' "$ROOT/scripts/build-iso.sh" \
 	|| fail "build-iso.sh must refuse rm -rf while /sys is still bound"
 grep -q 'umount -l' "$ROOT/scripts/lib-remaster-mounts.sh" \

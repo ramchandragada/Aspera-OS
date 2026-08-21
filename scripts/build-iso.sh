@@ -54,11 +54,15 @@ assert_chroot_unmounted "$WORK"
 rm -rf "$WORK"
 mkdir -p "$WORK"/{iso,squash,edit,mount}
 
-echo "Mounting Mint ISO..."
-mount -o loop "$MINT_ISO" "$WORK/mount"
-rsync -a --exclude=/casper/filesystem.squashfs "$WORK/mount"/ "$WORK/iso"/
-unsquashfs -d "$WORK/edit" "$WORK/mount/casper/filesystem.squashfs"
-umount "$WORK/mount"
+echo "Extracting Mint ISO (xorriso — works without iso9660 loop mount)..."
+# Cloud/CI kernels often lack iso9660; never rely on mount -o loop for the Mint ISO.
+xorriso -osirrox on -indev "$MINT_ISO" -extract / "$WORK/iso"
+if [ ! -f "$WORK/iso/casper/filesystem.squashfs" ]; then
+	echo "ERROR: Mint ISO extract missing casper/filesystem.squashfs" >&2
+	exit 1
+fi
+mv "$WORK/iso/casper/filesystem.squashfs" "$WORK/squash/filesystem.squashfs"
+unsquashfs -d "$WORK/edit" "$WORK/squash/filesystem.squashfs"
 
 echo "Applying Aspera customization inside chroot..."
 mkdir -p "$WORK/edit/tmp"
