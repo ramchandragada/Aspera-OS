@@ -8,7 +8,7 @@ alwaysApply: true
 This repo is a **company Linux Mint XFCE image**, not a hobby distro.
 
 - Base: Linux Mint XFCE LTS, remastered. Not Ubuntu GNOME, not Debian from scratch.
-- Apps (only): Google Chrome, Aspera Hub (`asperadock`), TuxGenie, LibreOffice full, SimpleScreenRecorder, Flameshot, AnyDesk, VLC.
+- Apps (only): Google Chrome, Aspera Hub (`asperadock`), TuxGenie, LibreOffice Writer/Calc/Draw, SimpleScreenRecorder, Flameshot, AnyDesk, PDF Sign Verifier. No Impress, VLC, Firefox, Thunderbird, Transmission, Matrix chat, or Mint Screenshot.
 - Hardware: Core i5 4th gen, 8 GB RAM, 128 GB SSD. zram on. amd64 only.
 - Logins: one person, one account. No guest. No staff software store.
 - Fleet: ISO for new/rebuild; Ansible for existing Mint XFCE.

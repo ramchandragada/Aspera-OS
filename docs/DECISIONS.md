@@ -6,15 +6,15 @@
 
 ## ADR-001 — Linux Mint XFCE is the base
 
-**Decision:** Remaster current Linux Mint **XFCE** LTS. Do not build Ubuntu GNOME or Debian from scratch.
+**Decision:** Remaster current Linux Mint **XFCE 22.3** LTS. Do not build Ubuntu GNOME or Debian from scratch.
 
 **Why:** Staff already understand Mint/XFCE. XFCE is the lightest serious desktop Mint ships. Speed and stability beat inventing a new stack.
 
 ## ADR-002 — Staff apps only
 
-**Decision:** Staff image: Chrome, Aspera Hub, TuxGenie, LibreOffice **Writer/Calc/Impress/Draw** (no Base, no Math), SimpleScreenRecorder, Flameshot, AnyDesk, VLC, **PDF Sign Verifier**. Strip Mint extras (Hypnotix, games, Thunderbird, Transmission, Web Apps, Notes, USB Image Writer, Warpinator, etc.).
+**Decision:** Staff image: Chrome, Aspera Hub, TuxGenie, LibreOffice **Writer/Calc/Draw** (no Impress, Base, or Math), SimpleScreenRecorder, Flameshot, AnyDesk, **PDF Sign Verifier**. No VLC. No second browser. Strip Mint extras (Hypnotix, games, Thunderbird, Transmission, Firefox, Matrix/Element chat, Web Apps, Notes, USB Image Writer, Warpinator, Mint Screenshot / `xfce4-screenshooter`, etc.). Flameshot is the only screenshot tool.
 
-**Why:** The company only uses these tools. Extra apps create tickets and waste RAM/disk on 128 GB SSDs.
+**Why:** The company only uses these tools. Extra apps create tickets and waste RAM/disk on 128 GB SSDs. Impress and VLC were unused weight. Firefox/Thunderbird/Transmission/Matrix are replaced by Chrome + Hub.
 
 ## ADR-003 — Hardware floor
 
@@ -24,9 +24,9 @@
 
 ## ADR-004 — How work is done on the PC
 
-**Decision:** Chrome = general web. Hub = WhatsApp, Arattai, Gmail, Zoho Mail. TuxGenie = repair. AnyDesk = remote support (not autostart). LibreOffice = documents. Flameshot / SimpleScreenRecorder / VLC = capture and media.
+**Decision:** Chrome = general web. Hub = WhatsApp, Arattai, Gmail, Zoho Mail. TuxGenie = repair. AnyDesk = remote support (not autostart). LibreOffice Writer/Calc/Draw = documents. Flameshot = screenshots. SimpleScreenRecorder = screen capture. No desktop video player in the default image.
 
-**Why:** One clear place for each job. No second browser, no second mail client.
+**Why:** One clear place for each job. No second browser, no second mail client, no unused media stack.
 
 ## ADR-005 — Two delivery tracks
 

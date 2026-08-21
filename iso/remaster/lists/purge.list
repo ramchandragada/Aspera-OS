@@ -12,6 +12,7 @@ gnome-sudoku
 hexchat
 hypnotix
 libreoffice-base
+libreoffice-impress
 libreoffice-math
 mintstick
 nheko
@@ -22,8 +23,13 @@ rhythmbox
 sticky
 thingy
 thunderbird
+thunderbird-gnome-support
 transmission-gtk
+vlc
+vlc-bin
+vlc-plugin-base
 webapp-manager
 warpinator
 xfce4-notes
 xfce4-notes-plugin
+xfce4-screenshooter
