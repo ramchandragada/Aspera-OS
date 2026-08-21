@@ -40,6 +40,18 @@
 
 **Why:** Staff must see they are on the company OS, not stock Mint. A panel-sized wordmark looks broken; a screen-filling logo looks unprofessional.
 
+## ADR-010 — Mint XFCE default light appearance
+
+**Decision:** Appearance stays **Linux Mint XFCE default light**: Style `Mint-Y`, Icons `Mint-Y`, Window Manager `Mint-Y`, fonts Ubuntu 10, panel light (not dark mode). Aspera changes wallpaper, start-menu mark, and panel launchers only — not a custom dark skin.
+
+**Why:** Staff already know Mint. A custom theme creates “what happened to my PC?” tickets.
+
+## ADR-011 — English only
+
+**Decision:** Ship English only (`en_US.UTF-8`, keep `en_IN` available). Purge other language packs, LibreOffice translations/help, and non-English locale/man/help trees during remaster.
+
+**Why:** Company desks are English. Extra languages waste disk (typically a few hundred MB in the live image) and clutter Language Support. Not a dramatic ISO shrink, but worth doing on 128 GB SSDs.
+
 ## ADR-007 — No staff software store
 
 **Decision:** Remove or hide Software Manager / store workflows for staff. Updates via Mint Update for the system; new apps only by company image/Ansible.

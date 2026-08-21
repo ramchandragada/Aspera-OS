@@ -16,6 +16,13 @@ grep -q 'aspera-mark.png' "$ROOT/iso/remaster/includes/whiskermenu-1.rc" \
 	|| fail "Whisker must use aspera-mark.png, not the full wordmark"
 grep -q 'aspera-mark.png' "$ROOT/iso/remaster/includes/xfce4-panel.xml" \
 	|| fail "panel Whisker button must use aspera-mark.png"
+
+grep -q 'ThemeName.*Mint-Y"' "$ROOT/iso/remaster/includes/xsettings.xml" \
+	|| fail "Appearance must use Mint-Y light theme"
+grep -q 'Mint-Y-Dark' "$ROOT/iso/remaster/includes/xsettings.xml" \
+	&& fail "do not default to Mint-Y-Dark"
+grep -q 'keeping English only' "$ROOT/scripts/chroot-customize.sh" \
+	|| fail "remaster must strip non-English locales"
 test -f "$ROOT/iso/remaster/lists/install.list" || fail "install.list missing"
 test -f "$ROOT/iso/remaster/lists/purge.list" || fail "purge.list missing"
 
