@@ -213,7 +213,7 @@ for f in /usr/share/applications/*.desktop; do
 	[ -f "$f" ] || continue
 	base=$(basename "$f" | tr '[:upper:]' '[:lower:]')
 	case "$base" in
-		*thunderbird*|*transmission*|*hypnotix*|*celluloid*|*rhythmbox*|*webapp*|*matrix*|*element*|*nheko*|*fractal*|*warpinator*|*mintstick*|*usb-image*|*notes*|*libreoffice-base*|*libreoffice-math*|*firefox*)
+		*thunderbird*|*transmission*|*hypnotix*|*celluloid*|*rhythmbox*|*webapp*|*matrix*|*element*|*nheko*|*fractal*|*warpinator*|*mintstick*|*usb-image*|*notes*|*libreoffice-base*|*libreoffice-impress*|*libreoffice-math*|*firefox*|*vlc*|*screenshooter*)
 			grep -q '^NoDisplay=true' "$f" || echo 'NoDisplay=true' >> "$f" || true
 			;;
 	esac
@@ -257,7 +257,7 @@ place_launcher 9 anydesk.desktop 'anydesk*.desktop'
 
 # Desktop shortcuts for staff apps
 mkdir -p /etc/skel/Desktop
-for app in google-chrome asperadock tuxgenie libreoffice-writer flameshot simplescreenrecorder vlc anydesk pdf-sign sign-verifier; do
+for app in google-chrome asperadock tuxgenie libreoffice-writer libreoffice-calc flameshot simplescreenrecorder anydesk pdf-sign sign-verifier; do
 	src=$(ls /usr/share/applications/${app}*.desktop 2>/dev/null | head -n1 || true)
 	if [ -n "${src:-}" ] && [ -f "$src" ]; then
 		cp "$src" /etc/skel/Desktop/ || true

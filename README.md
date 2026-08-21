@@ -9,14 +9,13 @@ Company Linux for staff PCs. **Linux Mint XFCE**, thin and fast.
 | Google Chrome | General browsing |
 | Aspera Hub | WhatsApp, Arattai, Gmail, Zoho Mail |
 | TuxGenie | Linux troubleshooting |
-| LibreOffice | Writer, Calc, Impress, Draw |
+| LibreOffice | Writer, Calc, Draw |
 | PDF Sign Verifier | Signed PDF check |
 | SimpleScreenRecorder | Screen recording |
 | Flameshot | Screenshots |
 | AnyDesk | Remote support |
-| VLC | Video |
 
-Nothing else is a product app.
+Nothing else is a product app. No Impress, VLC, Firefox, Thunderbird, Transmission, or Matrix chat.
 
 ## Hardware target
 

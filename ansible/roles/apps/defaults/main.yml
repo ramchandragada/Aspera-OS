@@ -2,15 +2,13 @@
 aspera_apt_apps:
   - libreoffice-writer
   - libreoffice-calc
-  - libreoffice-impress
   - libreoffice-draw
   - simplescreenrecorder
   - flameshot
-  - xfce4-screenshooter
-  - vlc
 aspera_purge_apps:
   - hypnotix
   - thunderbird
+  - thunderbird-gnome-support
   - hexchat
   - transmission-gtk
   - drawing
@@ -19,9 +17,16 @@ aspera_purge_apps:
   - gnome-sudoku
   - rhythmbox
   - firefox
+  - firefox-locale-en
   - libreoffice-base
+  - libreoffice-impress
   - libreoffice-math
   - mintstick
   - xfce4-notes
+  - xfce4-screenshooter
   - webapp-manager
   - celluloid
+  - vlc
+  - element-desktop
+  - fractal
+  - nheko
