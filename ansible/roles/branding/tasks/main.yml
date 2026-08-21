@@ -16,6 +16,7 @@
     mode: "0644"
   loop:
     - { src: "{{ playbook_dir }}/../../branding/logos/aspera.png", dest: /usr/share/pixmaps/aspera.png }
+    - { src: "{{ playbook_dir }}/../../branding/logos/aspera-mark.png", dest: /usr/share/pixmaps/aspera-mark.png }
     - { src: "{{ playbook_dir }}/../../branding/logos/aspera-avatar.png", dest: /usr/share/icons/aspera-avatar.png }
     - { src: "{{ playbook_dir }}/../../branding/wallpapers/aspera-default.png", dest: /usr/share/backgrounds/aspera/aspera-default.png }
   failed_when: false
