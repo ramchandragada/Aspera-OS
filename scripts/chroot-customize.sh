@@ -85,6 +85,12 @@ if [ -f /etc/default/zramswap ]; then
 fi
 systemctl enable zramswap.service 2>/dev/null || true
 
+# Prefer RAM over early SSD swap (good on 8 GB desks). Do not install preload.
+printf 'vm.swappiness=%s\n' "${ASPERA_SWAPPINESS:-20}" > /etc/sysctl.d/99-aspera-swappiness.conf
+# Drop preload if a meta-package pulled it in (uses RAM to "speed" launches).
+apt-get -y purge preload 2>/dev/null || true
+rm -f /etc/xdg/autostart/preload*.desktop 2>/dev/null || true
+
 # Default browser Chrome
 if command -v update-alternatives >/dev/null && [ -x /usr/bin/google-chrome-stable ]; then
 	update-alternatives --install /usr/bin/x-www-browser x-www-browser /usr/bin/google-chrome-stable 200 || true
@@ -201,6 +207,8 @@ for f in \
 	/etc/xdg/autostart/sticky.desktop \
 	/etc/xdg/autostart/mintreport.desktop \
 	/etc/xdg/autostart/mintreport-tray.desktop \
+	/etc/xdg/autostart/mintwelcome.desktop \
+	/etc/xdg/autostart/mintwelcome*.desktop \
 	/etc/xdg/autostart/nvidia-prime-applet.desktop \
 	/etc/xdg/autostart/vmware-user.desktop \
 	/etc/xdg/autostart/onboard-autostart.desktop \
@@ -214,12 +222,15 @@ for f in /etc/xdg/autostart/*.desktop; do
 	[ -f "$f" ] || continue
 	base=$(basename "$f" | tr '[:upper:]' '[:lower:]')
 	case "$base" in
-		*warpinator*|*notes*|*sticky*|*mintreport*|*vmware*|*onboard*|*prime*)
+		*warpinator*|*notes*|*sticky*|*mintreport*|*mintwelcome*|*vmware*|*onboard*|*prime*|*flatpak*)
 			echo 'Hidden=true' >> "$f" || true
 			echo 'X-GNOME-Autostart-enabled=false' >> "$f" || true
 			;;
 	esac
 done
+
+# Do NOT disable cups or bluetooth system-wide — desks print; laptops use BT.
+# Blueberry GUI is purged; printer stack (cups) and NetworkManager stay.
 
 # Hide Software Manager from casual use
 for f in \

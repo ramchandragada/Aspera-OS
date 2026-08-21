@@ -23,6 +23,14 @@ grep -q 'Mint-Y-Dark' "$ROOT/iso/remaster/includes/xsettings.xml" \
 	&& fail "do not default to Mint-Y-Dark"
 grep -q 'keeping English only' "$ROOT/scripts/chroot-customize.sh" \
 	|| fail "remaster must strip non-English locales"
+grep -q '99-aspera-swappiness.conf' "$ROOT/scripts/chroot-customize.sh" \
+	|| fail "remaster must set vm.swappiness"
+grep -q 'Do NOT disable cups or bluetooth' "$ROOT/scripts/chroot-customize.sh" \
+	|| fail "remaster must keep cups/bluetooth (printers and laptops)"
+grep -qx 'flatpak' "$ROOT/iso/remaster/lists/purge.list" \
+	|| fail "flatpak must be purged (no staff store)"
+grep -qx 'preload' "$ROOT/iso/remaster/lists/purge.list" \
+	|| fail "preload must be purged"
 test -f "$ROOT/iso/remaster/lists/install.list" || fail "install.list missing"
 test -f "$ROOT/iso/remaster/lists/purge.list" || fail "purge.list missing"
 
@@ -53,8 +61,10 @@ grep -q 'set-default graphical.target' "$ROOT/scripts/chroot-customize.sh" \
 grep -q 'apply_aspera_xfce_profile /home/mint' "$ROOT/scripts/chroot-customize.sh" \
 	|| fail "live session must get Aspera XFCE settings in /home/mint"
 
-grep -q 'lib-remaster-mounts.sh' "$ROOT/scripts/build-iso.sh" \
-	|| fail "build-iso.sh must use lib-remaster-mounts.sh"
+grep -q 'xorriso -osirrox on' "$ROOT/scripts/build-iso.sh" \
+	|| fail "build-iso must extract Mint ISO with xorriso (no iso9660 mount)"
+grep -E '^[[:space:]]*mount -o loop' "$ROOT/scripts/build-iso.sh" \
+	&& fail "build-iso must not loop-mount the Mint ISO"
 grep -q 'assert_chroot_unmounted' "$ROOT/scripts/build-iso.sh" \
 	|| fail "build-iso.sh must refuse rm -rf while /sys is still bound"
 grep -q 'umount -l' "$ROOT/scripts/lib-remaster-mounts.sh" \

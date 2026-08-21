@@ -24,3 +24,22 @@
     enabled: true
     state: started
   failed_when: false
+
+- name: Prefer RAM over early SSD swap
+  ansible.builtin.copy:
+    dest: /etc/sysctl.d/99-aspera-swappiness.conf
+    content: |
+      vm.swappiness={{ aspera_swappiness | default(20) }}
+    mode: "0644"
+
+- name: Apply swappiness now
+  ansible.builtin.command: sysctl --system
+  changed_when: false
+  failed_when: false
+
+- name: Ensure preload is not installed
+  ansible.builtin.apt:
+    name: preload
+    state: absent
+    purge: true
+  failed_when: false

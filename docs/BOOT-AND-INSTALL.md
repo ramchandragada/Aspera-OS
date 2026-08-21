@@ -6,6 +6,8 @@ This is a **Linux Mint XFCE remaster**, not a new OS. Three things must work:
 2. **Install** — Mint’s installer (Ubiquity) still on the USB. You pick disk, name, and password.
 3. **After reboot** — LightDM shows the user you created. That password works. No `mint` autologin on the hard disk.
 
+Aspera branding on the **desktop and login greeter** is intentional. Custom logos on the early boot menu / splash are **not** in 1.0 (see ADR-013) — Mint’s boot record stays untouched so the USB keeps starting.
+
 ## VirtualBox dry-run
 
 Do **not** install Linux Mint in the VM. Create a **new empty machine** and boot

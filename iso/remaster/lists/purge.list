@@ -5,6 +5,7 @@ drawing
 element-desktop
 firefox
 firefox-locale-en
+flatpak
 fractal
 gnome-disk-utility
 gnome-mines
@@ -15,9 +16,11 @@ libreoffice-base
 libreoffice-impress
 libreoffice-math
 mintstick
+mintwelcome
 nheko
 onboard
 pix
+preload
 redshift-gtk
 rhythmbox
 sticky
