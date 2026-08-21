@@ -2,6 +2,6 @@
 <channel name="xfwm4" version="1.0">
   <property name="general" type="empty">
     <property name="theme" type="string" value="Mint-Y"/>
-    <property name="title_font" type="string" value="Noto Sans Bold 10"/>
+    <property name="title_font" type="string" value="Ubuntu Medium 10"/>
   </property>
 </channel>

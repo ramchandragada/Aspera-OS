@@ -137,8 +137,32 @@ cat > /etc/lightdm/slick-greeter.conf <<'EOF'
 background=/usr/share/backgrounds/aspera/aspera-default.png
 theme-name=Mint-Y
 icon-theme-name=Mint-Y
+cursor-theme-name=Bibata-Modern-Classic
 draw-user-backgrounds=false
 EOF
+
+# Mint XFCE default light look (Appearance): never ship Dark variants as default
+for f in \
+	/etc/skel/.config/xfce4/xfconf/xfce-perchannel-xml/xsettings.xml \
+	/etc/xdg/xfce4/xfconf/xfce-perchannel-xml/xsettings.xml
+do
+	[ -f "$f" ] || continue
+	sed -i 's/Mint-Y-Dark/Mint-Y/g; s/Mint-X-Dark/Mint-X/g' "$f" || true
+done
+for f in \
+	/etc/skel/.config/xfce4/xfconf/xfce-perchannel-xml/xfwm4.xml \
+	/etc/xdg/xfce4/xfconf/xfce-perchannel-xml/xfwm4.xml
+do
+	[ -f "$f" ] || continue
+	sed -i 's/Mint-Y-Dark/Mint-Y/g' "$f" || true
+done
+# Panel must stay light
+find /etc/skel /etc/xdg -name 'xfce4-panel.xml' -print0 2>/dev/null \
+	| xargs -0 -r sed -i 's/name="dark-mode" type="bool" value="true"/name="dark-mode" type="bool" value="false"/g' \
+	|| true
+
+# Ubuntu fonts are Mint XFCE default; keep them available
+apt-get -y install fonts-ubuntu 2>/dev/null || true
 
 # Live session identity (casper only; not the installed login)
 cat > /etc/casper.conf <<'EOF'
@@ -327,6 +351,62 @@ if ! dpkg-query -W -f='${Status}' xfce4-session 2>/dev/null | grep -q 'install o
 	&& ! dpkg-query -W -f='${Status}' xfce4 2>/dev/null | grep -q 'install ok installed'; then
 	echo "ERROR: XFCE session missing after remaster" >&2
 	exit 1
+fi
+
+# English only — drop other language packs and locale files (typically a few hundred MB)
+echo "Aspera OS: keeping English only (smaller image, staff desks are English)"
+export LANG=en_US.UTF-8
+export LC_ALL=en_US.UTF-8
+printf 'LANG=en_US.UTF-8\nLC_ALL=en_US.UTF-8\n' > /etc/default/locale
+# Generate only English locales (US + India office English)
+printf '%s\n' 'en_US.UTF-8 UTF-8' 'en_IN UTF-8' > /etc/locale.gen
+locale-gen en_US.UTF-8 en_IN.UTF-8 2>/dev/null || locale-gen || true
+update-locale LANG=en_US.UTF-8 2>/dev/null || true
+
+# Purge non-English language packs and LibreOffice translations/help
+mapfile -t DROP_LANG < <(
+	dpkg-query -W -f='${Package}\n' 2>/dev/null | grep -E '^(language-pack|language-pack-gnome|libreoffice-l10n|libreoffice-help|hunspell|mythes|hyphen|aspell|firefox-locale|thunderbird-locale)-' \
+	| grep -vE '(^language-pack-en$|^language-pack-en-|^language-pack-gnome-en$|^language-pack-gnome-en-|^libreoffice-l10n-en|^libreoffice-help-en|^hunspell-en|^mythes-en|^hyphen-en|^aspell-en|^firefox-locale-en|^thunderbird-locale-en)' \
+	|| true
+)
+if [ "${#DROP_LANG[@]}" -gt 0 ]; then
+	apt-get -y purge "${DROP_LANG[@]}" 2>/dev/null || true
+fi
+
+# Remove leftover translation trees (keep English + C)
+keep_locale() {
+	case "$1" in
+		en|en_*|C|locale.alias|l10n) return 0 ;;
+		*) return 1 ;;
+	esac
+}
+if [ -d /usr/share/locale ]; then
+	for d in /usr/share/locale/*; do
+		[ -e "$d" ] || continue
+		base=$(basename "$d")
+		keep_locale "$base" || rm -rf "$d"
+	done
+fi
+if [ -d /usr/share/help ]; then
+	for d in /usr/share/help/*; do
+		[ -e "$d" ] || continue
+		base=$(basename "$d")
+		case "$base" in
+			C|en|en_*) ;;
+			*) rm -rf "$d" ;;
+		esac
+	done
+fi
+# Non-English man pages
+if [ -d /usr/share/man ]; then
+	for d in /usr/share/man/*; do
+		[ -d "$d" ] || continue
+		base=$(basename "$d")
+		case "$base" in
+			man|man.?|en|en_*) ;;
+			*) rm -rf "$d" ;;
+		esac
+	done
 fi
 
 # Cleanup apt caches for smaller squashfs

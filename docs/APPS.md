@@ -13,4 +13,6 @@
 
 **Removed on purpose:** LibreOffice Impress, VLC, Mint Screenshot (`xfce4-screenshooter`), Firefox, Thunderbird, Transmission, Matrix/Element/Fractal/Nheko.
 
+**Language:** English only (`en_US.UTF-8`; `en_IN` kept). Other language packs and translation files are stripped at remaster.
+
 Exact purge list: `iso/remaster/lists/purge.list`

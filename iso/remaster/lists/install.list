@@ -4,6 +4,7 @@ libreoffice-draw
 libreoffice-gtk3
 simplescreenrecorder
 flameshot
+fonts-ubuntu
 zram-tools
 ca-certificates
 curl
