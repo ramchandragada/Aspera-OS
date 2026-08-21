@@ -62,6 +62,12 @@
 
 **Why:** Smaller ISO and less clutter without risking “printers stopped working” or “no Bluetooth keyboard” tickets.
 
+## ADR-013 — No custom boot splash / GRUB theme in 1.0
+
+**Decision:** For Aspera OS 1.0, **do not** add a custom GRUB/isolinux logo screen or Plymouth splash. Keep Mint’s original live boot record (`xorriso -boot_image any replay`). Company branding stays on: greeter wallpaper, desktop wallpaper, and start-menu mark.
+
+**Why:** Boot menu themes and Plymouth have broken live USBs here before (casper / initrd / black screen). Staff see Aspera clearly after login. A logo for five seconds of boot is not worth “USB won’t start” tickets. Revisit only after the current ISO is proven on VirtualBox and a real PC.
+
 ## ADR-007 — No staff software store
 
 **Decision:** Remove or hide Software Manager / store workflows for staff. Updates via Mint Update for the system; new apps only by company image/Ansible.
