@@ -31,7 +31,7 @@
   <property name="plugins" type="empty">
     <property name="plugin-1" type="string" value="whiskermenu">
       <property name="button-title" type="string" value=""/>
-      <property name="button-icon" type="string" value="/usr/share/pixmaps/aspera.png"/>
+      <property name="button-icon" type="string" value="/usr/share/pixmaps/aspera-mark.png"/>
     </property>
     <property name="plugin-2" type="string" value="launcher">
       <property name="items" type="array">

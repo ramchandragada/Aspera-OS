@@ -10,6 +10,12 @@ test -f "$ROOT/scripts/chroot-customize.sh" || fail "chroot-customize.sh missing
 test -f "$ROOT/scripts/lib-remaster-mounts.sh" || fail "lib-remaster-mounts.sh missing"
 test -f "$ROOT/scripts/clean-remaster.sh" || fail "clean-remaster.sh missing"
 test -f "$ROOT/branding/logos/aspera.png" || fail "logo missing"
+test -f "$ROOT/branding/logos/aspera-mark.png" || fail "start-menu mark missing"
+test -f "$ROOT/branding/wallpapers/aspera-default.png" || fail "wallpaper missing"
+grep -q 'aspera-mark.png' "$ROOT/iso/remaster/includes/whiskermenu-1.rc" \
+	|| fail "Whisker must use aspera-mark.png, not the full wordmark"
+grep -q 'aspera-mark.png' "$ROOT/iso/remaster/includes/xfce4-panel.xml" \
+	|| fail "panel Whisker button must use aspera-mark.png"
 test -f "$ROOT/iso/remaster/lists/install.list" || fail "install.list missing"
 test -f "$ROOT/iso/remaster/lists/purge.list" || fail "purge.list missing"
 

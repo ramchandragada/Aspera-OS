@@ -36,9 +36,9 @@
 
 ## ADR-006 — Branding
 
-**Decision:** Aspera logo (`branding/logos/aspera.png`) on wallpaper, Whisker menu icon where possible, LightDM/slick-greeter, and docs. Dark navy company look.
+**Decision:** Dark navy company look. Full wordmark (`branding/logos/aspera.png`) for greeter and docs. Start menu / panel uses only the chevron mark (`branding/logos/aspera-mark.png`). Default wallpaper is 1920×1080 navy with a **small centered** wordmark (~20% width) — not a huge full-bleed logo.
 
-**Why:** Staff must see they are on the company OS, not stock Mint.
+**Why:** Staff must see they are on the company OS, not stock Mint. A panel-sized wordmark looks broken; a screen-filling logo looks unprofessional.
 
 ## ADR-007 — No staff software store
 
